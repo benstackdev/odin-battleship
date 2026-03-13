@@ -30,6 +30,7 @@
     "globals": "^17.3.0",
     "html-loader": "^5.1.0",
     "html-webpack-plugin": "^5.6.6",
+    "jest": "^30.3.0",
     "jiti": "^2.6.1",
     "prettier": "3.8.1",
     "style-loader": "^4.0.0",
