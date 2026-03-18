@@ -1,4 +1,4 @@
-export class BoardCell {
+export class GameCell {
     _occupiedBy;
     _isHit;
     constructor(ship) {
@@ -10,4 +10,4 @@ export class BoardCell {
     set occupiedBy(occupy) { this._occupiedBy = occupy; }
     set isHit(hit) { this._isHit = hit; }
 }
-//# sourceMappingURL=boardcell.js.map
+//# sourceMappingURL=gamecell.js.map

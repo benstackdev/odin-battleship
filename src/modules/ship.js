@@ -6,16 +6,17 @@ export var ShipOrientation;
 export class Ship {
     _x;
     _y;
-    _orientation = ShipOrientation.HORIZONTAL;
+    _orientation;
     _length;
     _hits = 0;
     _isSunk = false;
     _damage;
-    constructor(len, x = 0, y = 0) {
+    constructor(len, x = 0, y = 0, orientation = ShipOrientation.HORIZONTAL) {
         this._x = x;
         this._y = y;
         this._length = len;
         this._damage = Array(len).fill(false);
+        this._orientation = orientation;
     }
     get hits() { return this._hits; }
     get length() { return this._length; }

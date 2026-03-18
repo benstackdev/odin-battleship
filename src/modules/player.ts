@@ -5,8 +5,8 @@ import type { Coordinate } from "../types/battleship_types.js";
 class Player {
   private _playerBoard: GameBoard;
 
-  constructor() {
-    this._playerBoard = new GameBoard();
+  constructor(board: GameBoard) {
+    this._playerBoard = board;
   }
 
   get playerBoard() { return this._playerBoard; }
@@ -21,14 +21,14 @@ class Player {
 }
 
 class HumanPlayer extends Player {
-  constructor() {
-    super();
+  constructor(board: GameBoard) {
+    super(board);
   }
 }
 
 class ComputerPlayer extends Player {
-  constructor() {
-    super();
+  constructor(board: GameBoard) {
+    super(board);
   }
 }
 

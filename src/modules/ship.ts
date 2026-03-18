@@ -22,18 +22,19 @@ export interface ShipObject {
 export class Ship implements ShipObject {
   private _x: Coordinate;
   private _y: Coordinate;
-  private _orientation: ShipOrientation = ShipOrientation.HORIZONTAL;
+  private _orientation: ShipOrientation;
 
   private _length: ShipLength;
   private _hits: number = 0;
   private _isSunk: boolean = false;
   private _damage: boolean[];
 
-  constructor(len: ShipLength, x: Coordinate = 0, y: Coordinate = 0) {
+  constructor(len: ShipLength, x: Coordinate = 0, y: Coordinate = 0, orientation: ShipOrientation = ShipOrientation.HORIZONTAL) {
     this._x = x;
     this._y = y;
     this._length = len;
     this._damage = Array(len).fill(false);
+    this._orientation = orientation;
   }
 
   get hits() { return this._hits }

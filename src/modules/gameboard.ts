@@ -1,6 +1,6 @@
 import type { Coordinate, GameBoardTable } from "../types/battleship_types.js";
 import { Ship, ShipOrientation, type ShipLength } from "./ship.js";
-import { BoardCell } from "./boardcell.js";
+import { GameCell } from "./gamecell.js";
 
 export class GameBoard {
   private readonly BOARD_SIZE = 10;
@@ -9,19 +9,20 @@ export class GameBoard {
 
   constructor() {
     for (let i = 0; i < this.BOARD_SIZE; i++) {
-      const col: BoardCell[] = [];
+      const col: GameCell[] = [];
       for (let j = 0; j < this.BOARD_SIZE; j++) {
-        col[j] = new BoardCell();
+        col[j] = new GameCell();
       }
       this._board.push(col);
     }
   }
 
   get board() { return this._board; }
-  get ships() { return this._ships; }
+  get ships(): Ship[] { return this._ships; }
 
-  createShip(len: ShipLength, x: Coordinate = 0, y: Coordinate = 0): Ship {
-    const newShip = new Ship(len, x, y);
+  createShip(len: ShipLength, x: Coordinate = 0, y: Coordinate = 0, 
+    orientation: ShipOrientation = ShipOrientation.HORIZONTAL): Ship {
+    const newShip = new Ship(len, x, y, orientation);
     if (this.validShipPosition(newShip)) {
       this._ships.push(newShip);
       this.updateBoard();
@@ -105,7 +106,7 @@ export class GameBoard {
       for (let i = 0; i < ship.length; i++) {
         const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
         const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
-        this._board[ship.x + xoff]![ship.y + yoff]!.occupiedBy = ship;
+        this._board[ship.x + xoff][ship.y + yoff].occupiedBy = ship;
       }
     }
     // console.log(this._board);
@@ -114,8 +115,8 @@ export class GameBoard {
   // return value indicates successful hit or not
   receiveAttack(x: Coordinate, y: Coordinate): boolean {
     // early return if already hit
-    if (this._board[x]![y]!.isHit) return false;
-    this._board[x]![y]!.isHit = true;
+    if (this._board[x][y].isHit) return false;
+    this._board[x][y].isHit = true;
 
     // apply hit to the hit ship object itself
     for (const ship of this._ships) {
@@ -138,7 +139,7 @@ export class GameBoard {
   allSunk(): boolean {
     for (let i = 0; i < this.BOARD_SIZE; i++) {
       for (let j = 0; j < this.BOARD_SIZE; j++) {
-        if (this._board[i]![j]?.occupiedBy && !this._board[i]![j]!.isHit) return false;
+        if (this._board[i][j].occupiedBy && !this._board[i]![j]!.isHit) return false;
       }
     }
     return true;

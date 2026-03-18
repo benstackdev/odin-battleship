@@ -24,7 +24,7 @@ export declare class Ship implements ShipObject {
     private _hits;
     private _isSunk;
     private _damage;
-    constructor(len: ShipLength, x?: Coordinate, y?: Coordinate);
+    constructor(len: ShipLength, x?: Coordinate, y?: Coordinate, orientation?: ShipOrientation);
     get hits(): number;
     get length(): ShipLength;
     get isSunk(): boolean;

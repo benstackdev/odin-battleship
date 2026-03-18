@@ -1,5 +1,5 @@
 import { Ship, ShipOrientation } from "./ship.js";
-import { BoardCell } from "./boardcell.js";
+import { GameCell } from "./gamecell.js";
 export class GameBoard {
     BOARD_SIZE = 10;
     _board = [];
@@ -8,15 +8,15 @@ export class GameBoard {
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             const col = [];
             for (let j = 0; j < this.BOARD_SIZE; j++) {
-                col[j] = new BoardCell();
+                col[j] = new GameCell();
             }
             this._board.push(col);
         }
     }
     get board() { return this._board; }
     get ships() { return this._ships; }
-    createShip(len, x = 0, y = 0) {
-        const newShip = new Ship(len, x, y);
+    createShip(len, x = 0, y = 0, orientation = ShipOrientation.HORIZONTAL) {
+        const newShip = new Ship(len, x, y, orientation);
         if (this.validShipPosition(newShip)) {
             this._ships.push(newShip);
             this.updateBoard();
@@ -124,7 +124,7 @@ export class GameBoard {
     allSunk() {
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             for (let j = 0; j < this.BOARD_SIZE; j++) {
-                if (this._board[i][j]?.occupiedBy && !this._board[i][j].isHit)
+                if (this._board[i][j].occupiedBy && !this._board[i][j].isHit)
                     return false;
             }
         }

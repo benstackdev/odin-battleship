@@ -7,7 +7,7 @@ export declare class GameBoard {
     constructor();
     get board(): GameBoardTable;
     get ships(): Ship[];
-    createShip(len: ShipLength, x?: Coordinate, y?: Coordinate): Ship;
+    createShip(len: ShipLength, x?: Coordinate, y?: Coordinate, orientation?: ShipOrientation): Ship;
     rotateShip(x: Coordinate, y: Coordinate): boolean;
     validShipPosition(ship: Ship, orientation?: ShipOrientation): boolean;
     private isBufferAroundShip;

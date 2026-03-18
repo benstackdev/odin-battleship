@@ -1,13 +1,13 @@
 import type { Ship } from "./ship.js";
 
-export interface BoardCellInterface {
+export interface GameCellInterface {
   get occupiedBy(): Ship | undefined;
   get isHit(): boolean;
   set occupiedBy(occupy: Ship | undefined);
   set isHit(hit: boolean);
 }
 
-export class BoardCell implements BoardCellInterface {
+export class GameCell implements GameCellInterface {
   private _occupiedBy: Ship | undefined; 
   private _isHit: boolean;
 
