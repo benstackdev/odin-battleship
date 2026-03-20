@@ -26,6 +26,6 @@ export class Game {
 
   setupGameInit() {
     const ship1 = this._humanPlayer.createShip(3, undefined, undefined, ShipOrientation.HORIZONTAL);
-    console.log(`${ship1.x}, ${ship1.y}`);
+    this._humanPlayer.transformShip(ship1, 3, 3);
   }
 }

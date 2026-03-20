@@ -21,7 +21,7 @@ export class GameBoard {
     // otherwise check ship at its current orientation
     isValidShipPosition(ship, orientation) {
         if (ship.x === undefined || ship.y === undefined)
-            return false;
+            return true;
         // skip base coordinate (self) if checking for valid rotation
         const checkOrientation = (orientation !== undefined) ? orientation : ship.orientation;
         for (let i = 0; i < ship.length; i++) {
