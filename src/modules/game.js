@@ -19,8 +19,9 @@ export class Game {
         this.setupGameInit();
     }
     setupGameInit() {
-        const ship1 = this._humanPlayer.createShip(3, undefined, undefined, ShipOrientation.HORIZONTAL);
-        this._humanPlayer.transformShip(ship1, 3, 3);
+        this._humanPlayer.initPlayerShips();
+        this._computerPlayer.initPlayerShips();
+        // set up display for draggable ship objects
     }
 }
 //# sourceMappingURL=game.js.map

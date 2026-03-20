@@ -79,6 +79,22 @@ class Player {
         }
         return true;
     }
+    initPlayerShips() {
+        // one length 4 ship
+        this.createShip(4, undefined, undefined, ShipOrientation.HORIZONTAL);
+        // two length 3 ships
+        this.createShip(3, undefined, undefined, ShipOrientation.HORIZONTAL);
+        this.createShip(3, undefined, undefined, ShipOrientation.HORIZONTAL);
+        // three length 2 ships
+        this.createShip(2, undefined, undefined, ShipOrientation.HORIZONTAL);
+        this.createShip(2, undefined, undefined, ShipOrientation.HORIZONTAL);
+        this.createShip(2, undefined, undefined, ShipOrientation.HORIZONTAL);
+        // four length 1 ships
+        this.createShip(1, undefined, undefined, ShipOrientation.HORIZONTAL);
+        this.createShip(1, undefined, undefined, ShipOrientation.HORIZONTAL);
+        this.createShip(1, undefined, undefined, ShipOrientation.HORIZONTAL);
+        this.createShip(1, undefined, undefined, ShipOrientation.HORIZONTAL);
+    }
 }
 class HumanPlayer extends Player {
     constructor() {

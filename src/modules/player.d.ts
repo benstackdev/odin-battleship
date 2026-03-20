@@ -13,6 +13,7 @@ declare class Player {
     sendAttack(opponent: Player, x: Coordinate, y: Coordinate): boolean;
     receiveAttack(x: Coordinate, y: Coordinate): boolean;
     allSunk(): boolean;
+    initPlayerShips(): void;
 }
 declare class HumanPlayer extends Player {
     constructor();
