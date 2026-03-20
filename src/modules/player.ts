@@ -15,7 +15,7 @@ class Player {
   get playerBoard() { return this._playerBoard; }
   get playerShips() { return this._playerShips; }
 
-  createShip(len: ShipLength, x: Coordinate = 0, y: Coordinate = 0, orientation: ShipOrientation) {
+  createShip(len: ShipLength, x: Coordinate | undefined, y: Coordinate | undefined, orientation: ShipOrientation) {
     const newShip = new Ship(len, x, y, orientation);
     if (this._playerBoard.isValidShipPosition(newShip)) {
       this._playerShips.push(newShip);
@@ -52,7 +52,8 @@ class Player {
   receiveAttack(x: Coordinate, y: Coordinate): boolean {
     // iterate through ships, find location, and hit ship if not already
     for (const ship of this._playerShips) {
-      for (let i = 0; i < ship.length; i++) {
+      if (ship.x === undefined || ship.y === undefined) continue;
+      for (let i = 0; i < ship.length; i++) {  
         const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
         const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
         if (ship.x + xoff === x && ship.y + yoff === y) {

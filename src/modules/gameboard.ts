@@ -5,7 +5,7 @@ import { GameCell } from "./gamecell.js";
 export class GameBoard {
   readonly gameDiv: HTMLDivElement | null = document.querySelector(".game");
   private _gameBoardDiv: HTMLDivElement = document.createElement("div");
-  
+
   private readonly BOARD_SIZE = 10;
   private _board: GameBoardTable = [];
 
@@ -27,19 +27,20 @@ export class GameBoard {
   // optionally pass in second argument to check ship with specific orientation,
   // otherwise check ship at its current orientation
   isValidShipPosition(ship: Ship, orientation?: ShipOrientation): boolean {
+    if (ship.x === undefined || ship.y === undefined) return false;
     // skip base coordinate (self) if checking for valid rotation
     const checkOrientation = (orientation !== undefined) ? orientation : ship.orientation;
-
     for (let i = 0; i < ship.length; i++) {
+      
       const xoff = (checkOrientation === ShipOrientation.HORIZONTAL) ? i : 0;
       const yoff = (checkOrientation === ShipOrientation.VERTICAL) ? i : 0;
       // check that ship is: 
       // a) in bounds
-      if (ship.x + xoff <= 9 && ship.x + xoff >= 0 && 
-          ship.y + yoff <= 9 && ship.y + yoff >= 0) {
-          if (!this.isBufferAroundShip(ship, ship.x + xoff as Coordinate, ship.y + yoff as Coordinate)) {
-            return false;
-          }
+      if (ship.x + xoff <= 9 && ship.x + xoff >= 0 &&
+        ship.y + yoff <= 9 && ship.y + yoff >= 0) {
+        if (!this.isBufferAroundShip(ship, ship.x + xoff as Coordinate, ship.y + yoff as Coordinate)) {
+          return false;
+        }
       } else return false;
     }
 
@@ -57,17 +58,17 @@ export class GameBoard {
         if (xoffAdj <= 9 && xoffAdj >= 0 && yoffAdj <= 9 && yoffAdj >= 0) {
           // if board is occupied by a ship other than the one being validated, return false
           // console.log(`${xoffAdj}, ${yoffAdj} ${JSON.stringify(this._board[xoffAdj][yoffAdj].occupiedBy?.length)}`);
-          if (this._board[xoffAdj][yoffAdj].occupiedBy !== undefined && 
-              this._board[xoffAdj][yoffAdj].occupiedBy !== ship) {
+          if (this._board[xoffAdj][yoffAdj].occupiedBy !== undefined &&
+            this._board[xoffAdj][yoffAdj].occupiedBy !== ship) {
             console.log(`found conflict at: ${xoffAdj}, ${yoffAdj}`);
             return false;
           }
         }
       }
     }
-    
+
     return true;
-  } 
+  }
 
   updateBoard(ships: Ship[]) {
     // reset board first before replacing ships
@@ -79,11 +80,12 @@ export class GameBoard {
 
     // Iterate through ships and place them on board according to their orientation
     for (const ship of ships) {
+      if (ship.x === undefined || ship.y === undefined) continue;
       for (let i = 0; i < ship.length; i++) {
         const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
         const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
         const off = (ship.orientation === ShipOrientation.HORIZONTAL) ? xoff : yoff;
-        
+
         const hit = ship.isHit(off);
         this._board[ship.x + xoff][ship.y + yoff].occupiedBy = ship;
         if (hit !== undefined) {
@@ -98,18 +100,14 @@ export class GameBoard {
   initDisplay() {
     this._gameBoardDiv.className = "game-board";
     if (this.gameDiv !== null) this.gameDiv.appendChild(this._gameBoardDiv);
-    
+
     for (let i = 0; i < this.BOARD_SIZE; i++) {
       for (let j = 0; j < this.BOARD_SIZE; j++) {
         // eventual refactor to use GameCellDisplay object
         const cell = document.createElement("div");
         cell.className = `game-board-cell x-${j} y-${i}`;
-        
-        cell.addEventListener("click", (e) => {
-          e.preventDefault();
-          this._board[i][j].isHit = true;
-          cell.classList.add("hit");
-        });
+
+        // add event listener at some point to register clicks
 
         // add x axis label
         if (i == 0) {
@@ -123,9 +121,9 @@ export class GameBoard {
         if (j == 0) {
           const yAxisMarker = document.createElement("div");
           // add origin marker if at origin for special transform
-          if (i === 0) yAxisMarker.className = "y-axis-marker origin";  
+          if (i === 0) yAxisMarker.className = "y-axis-marker origin";
           else yAxisMarker.className = "y-axis-marker";
-          
+
           yAxisMarker.textContent = `${i + 1}`;
           cell.appendChild(yAxisMarker);
         }
@@ -139,7 +137,7 @@ export class GameBoard {
   updateDisplay() {
     for (let i = 0; i < this.BOARD_SIZE; i++) {
       for (let j = 0; j < this.BOARD_SIZE; j++) {
-        const cell = document.querySelector(`.x-${i}.y-${j}`);  
+        const cell = document.querySelector(`.x-${i}.y-${j}`);
         if (this._board[i][j].occupiedBy) {
           cell?.classList.add("ship");
         } else {

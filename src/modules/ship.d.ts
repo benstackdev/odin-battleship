@@ -11,8 +11,8 @@ export interface ShipObject {
     get hits(): number;
     get length(): ShipLength;
     get isSunk(): boolean;
-    get x(): Coordinate;
-    get y(): Coordinate;
+    get x(): Coordinate | undefined;
+    get y(): Coordinate | undefined;
     get orientation(): ShipOrientation;
     get shipSegmentHit(): boolean[];
 }
@@ -24,16 +24,16 @@ export declare class Ship implements ShipObject {
     private _hits;
     private _isSunk;
     private _shipSegmentHit;
-    constructor(len: ShipLength, x?: Coordinate, y?: Coordinate, orientation?: ShipOrientation);
+    constructor(len: ShipLength, x: Coordinate | undefined, y: Coordinate | undefined, orientation?: ShipOrientation);
     get hits(): number;
     get length(): ShipLength;
     get isSunk(): boolean;
-    get x(): Coordinate;
-    get y(): Coordinate;
+    get x(): Coordinate | undefined;
+    get y(): Coordinate | undefined;
     get orientation(): ShipOrientation;
     get shipSegmentHit(): boolean[];
-    set x(newx: Coordinate);
-    set y(newy: Coordinate);
+    set x(newx: Coordinate | undefined);
+    set y(newy: Coordinate | undefined);
     takeHit(off: number): void;
     isHit(off: number): boolean | undefined;
     flip(): void;

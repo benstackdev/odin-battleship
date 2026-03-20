@@ -11,7 +11,7 @@ export class Ship {
     _hits = 0;
     _isSunk = false;
     _shipSegmentHit;
-    constructor(len, x = 0, y = 0, orientation = ShipOrientation.HORIZONTAL) {
+    constructor(len, x, y, orientation = ShipOrientation.HORIZONTAL) {
         this._x = x;
         this._y = y;
         this._length = len;

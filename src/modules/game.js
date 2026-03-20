@@ -1,26 +1,26 @@
-import { GameBoard } from "./gameboard.js";
-import { GameBoardDisplay } from "./gameboard_display.js";
 import { HumanPlayer, ComputerPlayer } from "./player.js";
 import { ShipOrientation } from "./ship.js";
-/* Game state manager internally; no DOM manipulation here */
+export var GameState;
+(function (GameState) {
+    GameState[GameState["SETUP"] = 1] = "SETUP";
+    GameState[GameState["PLAYING"] = 2] = "PLAYING";
+    GameState[GameState["END"] = 3] = "END";
+})(GameState || (GameState = {}));
+/* Game state manager */
 export class Game {
+    shipSelectDiv = document.querySelector(".ship-select");
     _humanPlayer;
     _computerPlayer;
-    _humanGameBoard;
-    _humanGameBoardDisplay;
-    _computerGameBoard;
-    _computerGameBoardDisplay;
+    _gameState;
     constructor() {
-        this._humanGameBoard = new GameBoard();
-        this._computerGameBoard = new GameBoard();
-        this._humanGameBoardDisplay = new GameBoardDisplay(this._humanGameBoard);
-        this._computerGameBoardDisplay = new GameBoardDisplay(this._computerGameBoard);
-        this._humanPlayer = new HumanPlayer(this._humanGameBoard);
-        this._computerPlayer = new HumanPlayer(this._computerGameBoard);
-        this.initGame();
+        this._humanPlayer = new HumanPlayer();
+        this._computerPlayer = new ComputerPlayer();
+        this._gameState = GameState.SETUP;
+        this.setupGameInit();
     }
-    initGame() {
-        this._humanGameBoardDisplay.updateDisplay();
+    setupGameInit() {
+        const ship1 = this._humanPlayer.createShip(3, undefined, undefined, ShipOrientation.HORIZONTAL);
+        console.log(`${ship1.x}, ${ship1.y}`);
     }
 }
 //# sourceMappingURL=game.js.map

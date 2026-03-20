@@ -1,11 +1,14 @@
+export declare enum GameState {
+    SETUP = 1,
+    PLAYING = 2,
+    END = 3
+}
 export declare class Game {
+    shipSelectDiv: HTMLDivElement | null;
     private _humanPlayer;
     private _computerPlayer;
-    private _humanGameBoard;
-    private _humanGameBoardDisplay;
-    private _computerGameBoard;
-    private _computerGameBoardDisplay;
+    private _gameState;
     constructor();
-    initGame(): void;
+    setupGameInit(): void;
 }
 //# sourceMappingURL=game.d.ts.map

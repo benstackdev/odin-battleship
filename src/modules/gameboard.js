@@ -20,6 +20,8 @@ export class GameBoard {
     // optionally pass in second argument to check ship with specific orientation,
     // otherwise check ship at its current orientation
     isValidShipPosition(ship, orientation) {
+        if (ship.x === undefined || ship.y === undefined)
+            return false;
         // skip base coordinate (self) if checking for valid rotation
         const checkOrientation = (orientation !== undefined) ? orientation : ship.orientation;
         for (let i = 0; i < ship.length; i++) {
@@ -68,6 +70,8 @@ export class GameBoard {
         }
         // Iterate through ships and place them on board according to their orientation
         for (const ship of ships) {
+            if (ship.x === undefined || ship.y === undefined)
+                continue;
             for (let i = 0; i < ship.length; i++) {
                 const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
                 const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
@@ -90,11 +94,7 @@ export class GameBoard {
                 // eventual refactor to use GameCellDisplay object
                 const cell = document.createElement("div");
                 cell.className = `game-board-cell x-${j} y-${i}`;
-                cell.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    this._board[i][j].isHit = true;
-                    cell.classList.add("hit");
-                });
+                // add event listener at some point to register clicks
                 // add x axis label
                 if (i == 0) {
                     const xAxisMarker = document.createElement("div");

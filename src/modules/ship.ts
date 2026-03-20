@@ -13,15 +13,15 @@ export interface ShipObject {
   get hits(): number;
   get length(): ShipLength;
   get isSunk(): boolean;
-  get x(): Coordinate;
-  get y(): Coordinate;
+  get x(): Coordinate | undefined;
+  get y(): Coordinate | undefined;
   get orientation(): ShipOrientation;
   get shipSegmentHit(): boolean[];
 }
 
 export class Ship implements ShipObject {
-  private _x: Coordinate;
-  private _y: Coordinate;
+  private _x: Coordinate | undefined;
+  private _y: Coordinate | undefined;
   private _orientation: ShipOrientation;
 
   private _length: ShipLength;
@@ -29,7 +29,7 @@ export class Ship implements ShipObject {
   private _isSunk: boolean = false;
   private _shipSegmentHit: boolean[];
 
-  constructor(len: ShipLength, x: Coordinate = 0, y: Coordinate = 0, orientation: ShipOrientation = ShipOrientation.HORIZONTAL) {
+  constructor(len: ShipLength, x: Coordinate | undefined, y: Coordinate | undefined, orientation: ShipOrientation = ShipOrientation.HORIZONTAL) {
     this._x = x;
     this._y = y;
     this._length = len;
@@ -45,8 +45,8 @@ export class Ship implements ShipObject {
   get orientation() { return this._orientation; }
   get shipSegmentHit() { return this._shipSegmentHit; }
 
-  set x(newx: Coordinate) { this._x = newx; }
-  set y(newy: Coordinate) { this._y = newy; }
+  set x(newx: Coordinate | undefined) { this._x = newx; }
+  set y(newy: Coordinate | undefined) { this._y = newy; }
 
   takeHit(off: number) {
     if (this.isHit(off) === undefined || 
