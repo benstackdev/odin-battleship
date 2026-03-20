@@ -5,16 +5,16 @@ export declare enum ShipOrientation {
     VERTICAL = 1
 }
 export interface ShipObject {
-    hit(off: number): void;
-    isDamaged(off: number): boolean | undefined;
-    rotate(): void;
+    takeHit(off: number): void;
+    isHit(off: number): boolean | undefined;
+    flip(): void;
     get hits(): number;
     get length(): ShipLength;
     get isSunk(): boolean;
     get x(): Coordinate;
     get y(): Coordinate;
     get orientation(): ShipOrientation;
-    get damage(): boolean[];
+    get shipSegmentHit(): boolean[];
 }
 export declare class Ship implements ShipObject {
     private _x;
@@ -23,7 +23,7 @@ export declare class Ship implements ShipObject {
     private _length;
     private _hits;
     private _isSunk;
-    private _damage;
+    private _shipSegmentHit;
     constructor(len: ShipLength, x?: Coordinate, y?: Coordinate, orientation?: ShipOrientation);
     get hits(): number;
     get length(): ShipLength;
@@ -31,9 +31,11 @@ export declare class Ship implements ShipObject {
     get x(): Coordinate;
     get y(): Coordinate;
     get orientation(): ShipOrientation;
-    get damage(): boolean[];
-    hit(off: number): void;
-    isDamaged(off: number): boolean | undefined;
-    rotate(): void;
+    get shipSegmentHit(): boolean[];
+    set x(newx: Coordinate);
+    set y(newy: Coordinate);
+    takeHit(off: number): void;
+    isHit(off: number): boolean | undefined;
+    flip(): void;
 }
 //# sourceMappingURL=ship.d.ts.map

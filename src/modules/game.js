@@ -20,16 +20,6 @@ export class Game {
         this.initGame();
     }
     initGame() {
-        this._humanGameBoard.createShip(4, 3, 0, ShipOrientation.VERTICAL);
-        this._humanGameBoard.createShip(3, 5, 1, ShipOrientation.VERTICAL);
-        this._humanGameBoard.createShip(3, 8, 3, ShipOrientation.VERTICAL);
-        this._humanGameBoard.createShip(2, 0, 0, ShipOrientation.VERTICAL);
-        this._humanGameBoard.createShip(2, 4, 7, ShipOrientation.VERTICAL);
-        this._humanGameBoard.createShip(2, 7, 7, ShipOrientation.HORIZONTAL);
-        this._humanGameBoard.createShip(1, 1, 5);
-        this._humanGameBoard.createShip(1, 3, 5);
-        this._humanGameBoard.createShip(1, 1, 8);
-        this._humanGameBoard.createShip(1, 9, 9);
         this._humanGameBoardDisplay.updateDisplay();
     }
 }

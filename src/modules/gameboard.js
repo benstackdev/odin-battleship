@@ -1,10 +1,12 @@
 import { Ship, ShipOrientation } from "./ship.js";
 import { GameCell } from "./gamecell.js";
 export class GameBoard {
+    gameDiv = document.querySelector(".game");
+    _gameBoardDiv = document.createElement("div");
     BOARD_SIZE = 10;
     _board = [];
-    _ships = [];
     constructor() {
+        // gameboard internal state
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             const col = [];
             for (let j = 0; j < this.BOARD_SIZE; j++) {
@@ -12,36 +14,12 @@ export class GameBoard {
             }
             this._board.push(col);
         }
+        this.initDisplay();
     }
     get board() { return this._board; }
-    get ships() { return this._ships; }
-    createShip(len, x = 0, y = 0, orientation = ShipOrientation.HORIZONTAL) {
-        const newShip = new Ship(len, x, y, orientation);
-        if (this.validShipPosition(newShip)) {
-            this._ships.push(newShip);
-            this.updateBoard();
-        }
-        return newShip;
-    }
-    rotateShip(x, y) {
-        // find the ship at the x, y
-        for (const ship of this._ships) {
-            if (ship.x === x && ship.y === y) {
-                const flipped = (ship.orientation === ShipOrientation.HORIZONTAL) ? ShipOrientation.VERTICAL : ShipOrientation.HORIZONTAL;
-                if (this.validShipPosition(ship, flipped)) {
-                    ship.rotate();
-                    this.updateBoard();
-                    return true;
-                }
-                // if it isn't valid, return false
-                return false;
-            }
-        }
-        return false; // default if no ship is at given x, y
-    }
     // optionally pass in second argument to check ship with specific orientation,
     // otherwise check ship at its current orientation
-    validShipPosition(ship, orientation) {
+    isValidShipPosition(ship, orientation) {
         // skip base coordinate (self) if checking for valid rotation
         const checkOrientation = (orientation !== undefined) ? orientation : ship.orientation;
         for (let i = 0; i < ship.length; i++) {
@@ -81,7 +59,7 @@ export class GameBoard {
         }
         return true;
     }
-    updateBoard() {
+    updateBoard(ships) {
         // reset board first before replacing ships
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             for (let j = 0; j < this.BOARD_SIZE; j++) {
@@ -89,46 +67,70 @@ export class GameBoard {
             }
         }
         // Iterate through ships and place them on board according to their orientation
-        for (const ship of this._ships) {
+        for (const ship of ships) {
             for (let i = 0; i < ship.length; i++) {
                 const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
                 const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
+                const off = (ship.orientation === ShipOrientation.HORIZONTAL) ? xoff : yoff;
+                const hit = ship.isHit(off);
                 this._board[ship.x + xoff][ship.y + yoff].occupiedBy = ship;
-            }
-        }
-        // console.log(this._board);
-    }
-    // return value indicates successful hit or not
-    receiveAttack(x, y) {
-        // early return if already hit
-        if (this._board[x][y].isHit)
-            return false;
-        this._board[x][y].isHit = true;
-        // apply hit to the hit ship object itself
-        for (const ship of this._ships) {
-            for (let i = 0; i < ship.length; i++) {
-                const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
-                const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
-                if (ship.x + xoff === x && ship.y + yoff === y) {
-                    // calculate offset to pass to ship.hit() based on orientation
-                    const off = (ship.orientation === ShipOrientation.HORIZONTAL) ? xoff : yoff;
-                    ship.hit(off);
-                    return true;
+                if (hit !== undefined) {
+                    this._board[ship.x + xoff][ship.y + yoff].isHit = hit;
                 }
             }
         }
-        // should not be reachable
-        return false;
+        this.updateDisplay();
     }
-    // check if there's an cell occupied by a ship that hasn't been hit
-    allSunk() {
+    initDisplay() {
+        this._gameBoardDiv.className = "game-board";
+        if (this.gameDiv !== null)
+            this.gameDiv.appendChild(this._gameBoardDiv);
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             for (let j = 0; j < this.BOARD_SIZE; j++) {
-                if (this._board[i][j].occupiedBy && !this._board[i][j].isHit)
-                    return false;
+                // eventual refactor to use GameCellDisplay object
+                const cell = document.createElement("div");
+                cell.className = `game-board-cell x-${j} y-${i}`;
+                cell.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    this._board[i][j].isHit = true;
+                    cell.classList.add("hit");
+                });
+                // add x axis label
+                if (i == 0) {
+                    const xAxisMarker = document.createElement("div");
+                    xAxisMarker.className = "x-axis-marker";
+                    xAxisMarker.textContent = `${"ABCDEFGHIJ".charAt(j)}`;
+                    cell.appendChild(xAxisMarker);
+                }
+                // add y axis label 
+                if (j == 0) {
+                    const yAxisMarker = document.createElement("div");
+                    // add origin marker if at origin for special transform
+                    if (i === 0)
+                        yAxisMarker.className = "y-axis-marker origin";
+                    else
+                        yAxisMarker.className = "y-axis-marker";
+                    yAxisMarker.textContent = `${i + 1}`;
+                    cell.appendChild(yAxisMarker);
+                }
+                this._gameBoardDiv.appendChild(cell);
             }
         }
-        return true;
+    }
+    updateDisplay() {
+        for (let i = 0; i < this.BOARD_SIZE; i++) {
+            for (let j = 0; j < this.BOARD_SIZE; j++) {
+                const cell = document.querySelector(`.x-${i}.y-${j}`);
+                if (this._board[i][j].occupiedBy) {
+                    cell?.classList.add("ship");
+                }
+                else {
+                    if (cell?.classList.contains("ship")) {
+                        cell?.classList.remove("ship");
+                    }
+                }
+            }
+        }
     }
 }
 //# sourceMappingURL=gameboard.js.map

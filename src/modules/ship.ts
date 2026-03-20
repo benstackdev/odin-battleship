@@ -7,16 +7,16 @@ export enum ShipOrientation {
 }
 
 export interface ShipObject {
-  hit(off: number): void;
-  isDamaged(off: number): boolean | undefined;
-  rotate(): void;
+  takeHit(off: number): void;
+  isHit(off: number): boolean | undefined;
+  flip(): void;
   get hits(): number;
   get length(): ShipLength;
   get isSunk(): boolean;
   get x(): Coordinate;
   get y(): Coordinate;
   get orientation(): ShipOrientation;
-  get damage(): boolean[];
+  get shipSegmentHit(): boolean[];
 }
 
 export class Ship implements ShipObject {
@@ -27,13 +27,13 @@ export class Ship implements ShipObject {
   private _length: ShipLength;
   private _hits: number = 0;
   private _isSunk: boolean = false;
-  private _damage: boolean[];
+  private _shipSegmentHit: boolean[];
 
   constructor(len: ShipLength, x: Coordinate = 0, y: Coordinate = 0, orientation: ShipOrientation = ShipOrientation.HORIZONTAL) {
     this._x = x;
     this._y = y;
     this._length = len;
-    this._damage = Array(len).fill(false);
+    this._shipSegmentHit = Array(len).fill(false);
     this._orientation = orientation;
   }
 
@@ -43,23 +43,27 @@ export class Ship implements ShipObject {
   get x() { return this._x; }
   get y() { return this._y; }
   get orientation() { return this._orientation; }
-  get damage() { return this._damage; }
+  get shipSegmentHit() { return this._shipSegmentHit; }
 
-  hit(off: number) {
-    if (this.isDamaged(off) === undefined || 
-        this.isDamaged(off) === true || this._isSunk) return;
+  set x(newx: Coordinate) { this._x = newx; }
+  set y(newy: Coordinate) { this._y = newy; }
 
-    this._damage[off] = true;
+  takeHit(off: number) {
+    if (this.isHit(off) === undefined || 
+        this.isHit(off) === true || this._isSunk) return;
+
+    this._shipSegmentHit[off] = true;
     if (this._hits < this._length) this._hits++;
     if (this._hits === this._length) this._isSunk = true;
   }
   
-  isDamaged(off: number): boolean | undefined {
+  isHit(off: number): boolean | undefined {
     if (off < 0 || off > this._length - 1) return undefined;
-    return this._damage[off];
+    return this._shipSegmentHit[off];
   }
 
-  rotate() {
-    this._orientation = (this._orientation === ShipOrientation.HORIZONTAL) ? ShipOrientation.VERTICAL : ShipOrientation.HORIZONTAL;
+  flip() {
+    this._orientation = (this._orientation === ShipOrientation.VERTICAL) 
+                        ? ShipOrientation.HORIZONTAL : ShipOrientation.VERTICAL;
   }
 }

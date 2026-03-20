@@ -10,12 +10,12 @@ export class Ship {
     _length;
     _hits = 0;
     _isSunk = false;
-    _damage;
+    _shipSegmentHit;
     constructor(len, x = 0, y = 0, orientation = ShipOrientation.HORIZONTAL) {
         this._x = x;
         this._y = y;
         this._length = len;
-        this._damage = Array(len).fill(false);
+        this._shipSegmentHit = Array(len).fill(false);
         this._orientation = orientation;
     }
     get hits() { return this._hits; }
@@ -24,24 +24,27 @@ export class Ship {
     get x() { return this._x; }
     get y() { return this._y; }
     get orientation() { return this._orientation; }
-    get damage() { return this._damage; }
-    hit(off) {
-        if (this.isDamaged(off) === undefined ||
-            this.isDamaged(off) === true || this._isSunk)
+    get shipSegmentHit() { return this._shipSegmentHit; }
+    set x(newx) { this._x = newx; }
+    set y(newy) { this._y = newy; }
+    takeHit(off) {
+        if (this.isHit(off) === undefined ||
+            this.isHit(off) === true || this._isSunk)
             return;
-        this._damage[off] = true;
+        this._shipSegmentHit[off] = true;
         if (this._hits < this._length)
             this._hits++;
         if (this._hits === this._length)
             this._isSunk = true;
     }
-    isDamaged(off) {
+    isHit(off) {
         if (off < 0 || off > this._length - 1)
             return undefined;
-        return this._damage[off];
+        return this._shipSegmentHit[off];
     }
-    rotate() {
-        this._orientation = (this._orientation === ShipOrientation.HORIZONTAL) ? ShipOrientation.VERTICAL : ShipOrientation.HORIZONTAL;
+    flip() {
+        this._orientation = (this._orientation === ShipOrientation.VERTICAL)
+            ? ShipOrientation.HORIZONTAL : ShipOrientation.VERTICAL;
     }
 }
 //# sourceMappingURL=ship.js.map
