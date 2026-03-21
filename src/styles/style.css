@@ -4,6 +4,8 @@
 
   --col-bg: white;
   --col-primary: #555;
+
+  --game-cell-size: 40px;
 }
 
 * {
@@ -36,6 +38,7 @@ header, footer {
 
 .content {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
@@ -51,8 +54,6 @@ header, footer {
 }
 
 .game-board {
-  width: 400px;
-  height: 400px;
   display: grid;
   grid-template: repeat(10, 1fr) / repeat(10, 1fr);
 
@@ -60,17 +61,28 @@ header, footer {
 }
 
 .game-board-cell {
-  width: 100%;
-  height: 100%;
+  width: var(--game-cell-size);
+  height: var(--game-cell-size);
   background-color: var(--col-bg);
   border: 1px solid var(--col-primary);
 }
 
+/* ship not hit */
 .game-board-cell.ship {
   background-color: aqua;
 }
 
+.game-board-cell.computer {
+  background-color: white;
+}
+
+/* ship miss */
 .game-board-cell.hit {
+  background-color: grey;
+}
+
+/* ship hit */
+.game-board-cell.ship.hit {
   background-color: red;
 }
 
@@ -95,4 +107,34 @@ header, footer {
 
 .y-axis-marker.origin {
   transform: translate(-100%, -100%);
+}
+
+.ship-draggable {
+  margin: 1rem;
+
+  width: var(--game-cell-size);
+  height: var(--game-cell-size);
+  background-color: #0000ff50;
+  border: 2px solid blue;
+}
+
+.ship-select {
+  align-self: flex-start;
+  margin-left: 4rem;
+}
+
+.ship-select-container {
+  display: flex;
+}
+
+.ship-draggable[data-length="2"] {
+  width: calc(var(--game-cell-size) * 2);
+}
+
+.ship-draggable[data-length="3"] {
+  width: calc(var(--game-cell-size) * 3);
+}
+
+.ship-draggable[data-length="4"] {
+  width: calc(var(--game-cell-size) * 4);
 }

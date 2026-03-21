@@ -1,11 +1,13 @@
 import { Ship, ShipOrientation } from "./ship.js";
 import { GameCell } from "./gamecell.js";
+import { PlayerID } from "./game.js";
 export class GameBoard {
     gameDiv = document.querySelector(".game");
     _gameBoardDiv = document.createElement("div");
     BOARD_SIZE = 10;
     _board = [];
-    constructor() {
+    _id;
+    constructor(id) {
         // gameboard internal state
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             const col = [];
@@ -14,9 +16,12 @@ export class GameBoard {
             }
             this._board.push(col);
         }
+        this._id = id;
         this.initDisplay();
     }
     get board() { return this._board; }
+    get id() { return this._id; }
+    get gameBoardDiv() { return this._gameBoardDiv; }
     // optionally pass in second argument to check ship with specific orientation,
     // otherwise check ship at its current orientation
     isValidShipPosition(ship, orientation) {
@@ -75,26 +80,20 @@ export class GameBoard {
             for (let i = 0; i < ship.length; i++) {
                 const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
                 const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
-                const off = (ship.orientation === ShipOrientation.HORIZONTAL) ? xoff : yoff;
-                const hit = ship.isHit(off);
                 this._board[ship.x + xoff][ship.y + yoff].occupiedBy = ship;
-                if (hit !== undefined) {
-                    this._board[ship.x + xoff][ship.y + yoff].isHit = hit;
-                }
             }
         }
         this.updateDisplay();
     }
     initDisplay() {
-        this._gameBoardDiv.className = "game-board";
+        this._gameBoardDiv.className = `game-board`;
         if (this.gameDiv !== null)
             this.gameDiv.appendChild(this._gameBoardDiv);
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             for (let j = 0; j < this.BOARD_SIZE; j++) {
                 // eventual refactor to use GameCellDisplay object
                 const cell = document.createElement("div");
-                cell.className = `game-board-cell x-${j} y-${i}`;
-                // add event listener at some point to register clicks
+                cell.className = `game-board-cell x${this._id}-${j} y${this._id}-${i}`;
                 // add x axis label
                 if (i == 0) {
                     const xAxisMarker = document.createElement("div");
@@ -120,15 +119,19 @@ export class GameBoard {
     updateDisplay() {
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             for (let j = 0; j < this.BOARD_SIZE; j++) {
-                const cell = document.querySelector(`.x-${i}.y-${j}`);
+                const cell = document.querySelector(`.x${this._id}-${i}.y${this._id}-${j}`);
                 if (this._board[i][j].occupiedBy) {
                     cell?.classList.add("ship");
+                    // add class to hide ships if the board is the computer's board
+                    if (this._id === PlayerID.COMPUTER)
+                        cell?.classList.add("computer");
                 }
                 else {
-                    if (cell?.classList.contains("ship")) {
+                    if (cell?.classList.contains("ship"))
                         cell?.classList.remove("ship");
-                    }
                 }
+                if (this._board[i][j].isHit)
+                    cell?.classList.add("hit");
             }
         }
     }

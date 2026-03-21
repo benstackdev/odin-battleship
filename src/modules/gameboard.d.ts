@@ -5,8 +5,11 @@ export declare class GameBoard {
     private _gameBoardDiv;
     private readonly BOARD_SIZE;
     private _board;
-    constructor();
+    private _id;
+    constructor(id: number);
     get board(): GameBoardTable;
+    get id(): number;
+    get gameBoardDiv(): HTMLDivElement;
     isValidShipPosition(ship: Ship, orientation?: ShipOrientation): boolean;
     private isBufferAroundShip;
     updateBoard(ships: Ship[]): void;

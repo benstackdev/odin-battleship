@@ -1,14 +1,15 @@
 import { Ship, ShipOrientation, type ShipLength } from "./ship.js";
 import { GameBoard } from "./gameboard.js";
 import type { Coordinate } from "../types/battleship_types.js";
+import { PlayerID } from "./game.js";
 
 class Player {
   readonly BOARD_SIZE = 10;
   private _playerBoard: GameBoard;
   private _playerShips: Ship[];
 
-  constructor() {
-    this._playerBoard = new GameBoard();
+  constructor(id: number) {
+    this._playerBoard = new GameBoard(id);
     this._playerShips = [];
   }
 
@@ -50,6 +51,14 @@ class Player {
   }
 
   receiveAttack(x: Coordinate, y: Coordinate): boolean {
+    if (this._playerBoard.board[x][y].isHit === false) {
+      this._playerBoard.board[x][y].isHit = true;
+      this._playerBoard.updateBoard(this._playerShips);
+    } else {
+      this._playerBoard.updateBoard(this._playerShips);
+      return false;
+    }
+
     // iterate through ships, find location, and hit ship if not already
     for (const ship of this._playerShips) {
       if (ship.x === undefined || ship.y === undefined) continue;
@@ -63,7 +72,9 @@ class Player {
             ship.takeHit(off);
             this._playerBoard.updateBoard(this._playerShips);
             return true;
-          } else return false;
+          }
+          this._playerBoard.updateBoard(this._playerShips);
+          return false;
         }
       }
     }
@@ -71,7 +82,7 @@ class Player {
     return false;
   }
 
-    // check if there's an cell occupied by a ship that hasn't been hit
+  // check if there's an cell occupied by a ship that hasn't been hit
   allSunk(): boolean {
     for (let i = 0 as Coordinate; i < this.BOARD_SIZE; i++) {
       for (let j = 0 as Coordinate; j < this.BOARD_SIZE; j++) {
@@ -101,18 +112,36 @@ class Player {
     this.createShip(1, undefined, undefined, ShipOrientation.HORIZONTAL);
     this.createShip(1, undefined, undefined, ShipOrientation.HORIZONTAL);
     this.createShip(1, undefined, undefined, ShipOrientation.HORIZONTAL);
+
+    this.randomizeShipLocations();
+  }
+
+  randomizeShipLocations() {
+    // iterate through ships, pick random location until valid then place
+    for (const ship of this._playerShips) {
+      let randX = Math.floor(Math.random() * 10) as Coordinate;
+      let randY = Math.floor(Math.random() * 10) as Coordinate;
+      let randFlip = (Math.random() > 0.5) ? true : false;
+
+      // select new positions/orientations until valid
+      while(!this.transformShip(ship, randX, randY, randFlip)) {
+        randX = Math.floor(Math.random() * 10) as Coordinate;
+        randY = Math.floor(Math.random() * 10) as Coordinate;
+        randFlip = (Math.random() > 0.5) ? true : false;
+      }
+    }
   }
 }
 
 class HumanPlayer extends Player {
   constructor() {
-    super();
+    super(PlayerID.HUMAN);
   }
 }
 
 class ComputerPlayer extends Player {
   constructor() {
-    super();
+    super(PlayerID.COMPUTER);
   }
 }
 

@@ -5,7 +5,7 @@ declare class Player {
     readonly BOARD_SIZE = 10;
     private _playerBoard;
     private _playerShips;
-    constructor();
+    constructor(id: number);
     get playerBoard(): GameBoard;
     get playerShips(): Ship[];
     createShip(len: ShipLength, x: Coordinate | undefined, y: Coordinate | undefined, orientation: ShipOrientation): Ship;
@@ -14,6 +14,7 @@ declare class Player {
     receiveAttack(x: Coordinate, y: Coordinate): boolean;
     allSunk(): boolean;
     initPlayerShips(): void;
+    randomizeShipLocations(): void;
 }
 declare class HumanPlayer extends Player {
     constructor();
