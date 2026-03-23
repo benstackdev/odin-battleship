@@ -130,6 +130,13 @@ export class GameBoard {
       }
     }
 
+    const gameBoardLabelText = (this._id === PlayerID.HUMAN) ? "Your board" : "Computer's board";
+    const gameBoardLabelDiv: HTMLDivElement = document.createElement("div");
+    gameBoardLabelDiv.className = "game-board-label";
+    gameBoardLabelDiv.textContent = gameBoardLabelText;
+    
+    this.gameDiv.appendChild(gameBoardLabelDiv);
+
   }
 
   updateDisplay() {

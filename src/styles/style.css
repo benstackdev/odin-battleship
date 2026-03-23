@@ -46,18 +46,24 @@ header, footer {
 .game {
   margin: 4rem;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: grid;
+  grid-template: 8fr 1fr / repeat(2, 1fr);
 
-  gap: clamp(8rem, 15%, 16rem);
+  row-gap: 1.5rem;
+  column-gap: 6rem;
 }
 
 .game-board {
+  grid-row-start: 1;
+
   display: grid;
   grid-template: repeat(10, 1fr) / repeat(10, 1fr);
 
   border: 1px solid var(--col-primary);
+}
+
+.game-board-label {
+  justify-self: center;
 }
 
 .game-board-cell {
@@ -137,4 +143,13 @@ header, footer {
 
 .ship-draggable[data-length="4"] {
   width: calc(var(--game-cell-size) * 4);
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 1rem;
 }

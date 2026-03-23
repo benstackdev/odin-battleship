@@ -1,3 +1,5 @@
+// TODO: update test set
+
 import { GameBoard } from "../modules/gameboard.js";
 import { BoardCell } from "../modules/gamecell.js";
 import { Ship } from "../modules/ship.js";

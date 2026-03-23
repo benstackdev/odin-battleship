@@ -98,7 +98,7 @@ export class Game {
         }
         this.toggleTurn();
     }
-    // *** refactor to only select among available positions
+    // TODO: refactor to only select among available positions
     computerFindAttack() {
         const humanGameBoard = this._humanPlayer.playerBoard;
         let turnX = Math.floor(Math.random() * 10);

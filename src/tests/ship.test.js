@@ -1,3 +1,4 @@
+// TODO: update test set
 import { Ship, ShipOrientation } from "../modules/ship.js";
 test("increase number of hits by 1", () => {
     const testShip = new Ship(4);
