@@ -1,5 +1,4 @@
 import { HumanPlayer, ComputerPlayer, Player } from "./player.js";
-import { ShipDraggable } from "./ship_draggable.js";
 export var GameState;
 (function (GameState) {
     GameState[GameState["SETUP"] = 1] = "SETUP";
@@ -48,27 +47,6 @@ export class Game {
     setupGameInit() {
         this._humanPlayer.initPlayerShips();
         this._computerPlayer.initPlayerShips();
-        // ! Deprecated, remove eventually
-        for (const ship of this._humanPlayer.playerShips) {
-            let shipSelectContainer;
-            switch (ship.length) {
-                case 4:
-                    shipSelectContainer = document.querySelector(`.ship-select-container:first-child`);
-                    console.log(shipSelectContainer);
-                    break;
-                case 3:
-                    shipSelectContainer = document.querySelector(`.ship-select-container:nth-child(2)`);
-                    break;
-                case 2:
-                    shipSelectContainer = document.querySelector(`.ship-select-container:nth-child(3)`);
-                    break;
-                case 1:
-                    shipSelectContainer = document.querySelector(`.ship-select-container:last-child`);
-                    break;
-            }
-            const draggableShip = new ShipDraggable(ship);
-            shipSelectContainer?.appendChild(draggableShip.element);
-        }
     }
     // TODO: Check win condition on each turn and change game state
     humanTurnInit() {
