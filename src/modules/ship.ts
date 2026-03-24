@@ -6,6 +6,8 @@ export enum ShipOrientation {
   VERTICAL = 1,
 }
 
+// ? Maybe refactor x, y, isMoving to a Location class?
+
 export interface ShipObject {
   takeHit(off: number): void;
   isHit(off: number): boolean | undefined;
@@ -27,6 +29,7 @@ export class Ship implements ShipObject {
   private _length: ShipLength;
   private _hits: number = 0;
   private _isSunk: boolean = false;
+  private _isMoving: boolean = false;
   private _shipSegmentHit: boolean[];
 
   constructor(len: ShipLength, x: Coordinate | undefined, y: Coordinate | undefined, orientation: ShipOrientation = ShipOrientation.HORIZONTAL) {
@@ -44,9 +47,11 @@ export class Ship implements ShipObject {
   get y() { return this._y; }
   get orientation() { return this._orientation; }
   get shipSegmentHit() { return this._shipSegmentHit; }
+  get isMoving() { return this._isMoving; }
 
   set x(newx: Coordinate | undefined) { this._x = newx; }
   set y(newy: Coordinate | undefined) { this._y = newy; }
+  set isMoving(moving: boolean) { this._isMoving = moving; } 
 
   takeHit(off: number) {
     if (this.isHit(off) === undefined || 

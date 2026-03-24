@@ -15,6 +15,7 @@ export var PlayerID;
 export class Game {
     BOARD_SIZE = 10;
     shipSelectDiv = document.querySelector(".ship-select");
+    randomizeBoardButton = document.querySelector(".randomize-board");
     startGameButton = document.querySelector("button.start-game");
     currentTurnDiv = document.querySelector(".turn span.current-turn");
     _humanPlayer;
@@ -29,17 +30,25 @@ export class Game {
         this._currentTurn = this._humanPlayer;
         this.currentTurnDiv.textContent = "You";
         this.startGameButton?.addEventListener("click", () => {
-            if (this._gameState === GameState.SETUP)
+            if (this._gameState === GameState.SETUP) {
                 this._gameState = GameState.PLAYING;
+                this._humanPlayer.canMoveShips = false;
+            }
             this.startGameButton.style.visibility = "hidden";
+            this.randomizeBoardButton.style.visibility = "hidden";
             this.humanTurnInit();
+        });
+        this.randomizeBoardButton?.addEventListener("click", () => {
+            if (this._gameState === GameState.SETUP) {
+                this._humanPlayer.randomizeShipLocations();
+            }
         });
         this.setupGameInit();
     }
     setupGameInit() {
         this._humanPlayer.initPlayerShips();
         this._computerPlayer.initPlayerShips();
-        // set up display for draggable ship objects
+        // ! Deprecated, remove eventually
         for (const ship of this._humanPlayer.playerShips) {
             let shipSelectContainer;
             switch (ship.length) {
@@ -61,6 +70,7 @@ export class Game {
             shipSelectContainer?.appendChild(draggableShip.element);
         }
     }
+    // TODO: Check win condition on each turn and change game state
     humanTurnInit() {
         // set up listeners for computer board cells so player can send attacks
         const computerGameBoard = this._computerPlayer.playerBoard;

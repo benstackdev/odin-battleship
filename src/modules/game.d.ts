@@ -11,6 +11,7 @@ export declare enum PlayerID {
 export declare class Game {
     readonly BOARD_SIZE = 10;
     shipSelectDiv: HTMLDivElement | null;
+    randomizeBoardButton: HTMLButtonElement | null;
     startGameButton: HTMLButtonElement | null;
     currentTurnDiv: HTMLDivElement | null;
     private _humanPlayer;

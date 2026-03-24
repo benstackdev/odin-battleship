@@ -10,6 +10,7 @@ export class Ship {
     _length;
     _hits = 0;
     _isSunk = false;
+    _isMoving = false;
     _shipSegmentHit;
     constructor(len, x, y, orientation = ShipOrientation.HORIZONTAL) {
         this._x = x;
@@ -25,8 +26,10 @@ export class Ship {
     get y() { return this._y; }
     get orientation() { return this._orientation; }
     get shipSegmentHit() { return this._shipSegmentHit; }
+    get isMoving() { return this._isMoving; }
     set x(newx) { this._x = newx; }
     set y(newy) { this._y = newy; }
+    set isMoving(moving) { this._isMoving = moving; }
     takeHit(off) {
         if (this.isHit(off) === undefined ||
             this.isHit(off) === true || this._isSunk)

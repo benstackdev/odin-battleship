@@ -117,6 +117,12 @@ class Player {
   }
 
   randomizeShipLocations() {
+    // reset all ship locations
+    for (const ship of this._playerShips) {
+      ship.x = undefined;
+      ship.y = undefined;
+    }
+
     // iterate through ships, pick random location until valid then place
     for (const ship of this._playerShips) {
       let randX = Math.floor(Math.random() * 10) as Coordinate;
@@ -134,8 +140,74 @@ class Player {
 }
 
 class HumanPlayer extends Player {
+  private _shipMoving: Ship | undefined;
+  canMoveShips: boolean = true;
+
   constructor() {
     super(PlayerID.HUMAN);
+    this.initShipMovementEvents();
+  }
+  
+  initShipMovementEvents() {
+    const board = this.playerBoard.board;
+    for (let i = 0 as Coordinate; i < this.BOARD_SIZE; i++) {
+      for (let j = 0 as Coordinate; j < this.BOARD_SIZE; j++) {
+        const cellDiv: HTMLDivElement | null = document.querySelector(`.x${PlayerID.HUMAN}-${i}.y${PlayerID.HUMAN}-${j}`);
+        if (cellDiv === null) continue;
+
+        cellDiv.addEventListener("click", () => {
+          if (!this.canMoveShips) return;
+          // get state of the cell on game board
+          const ship = board[i][j].occupiedBy;
+          if (ship !== undefined) {
+            if (this._shipMoving) {
+              // is defined: stop moving this ship and place at location
+              this._shipMoving = undefined;
+              ship.isMoving = false;
+              this.playerBoard.updateBoard(this.playerShips);
+            } else {
+              // undefined: start moving
+              this._shipMoving = ship; // remember the ship being moved   
+              ship.isMoving = true;
+              this._updateMovingShipPosition(i, j);
+            }
+          }
+        }); 
+      
+        cellDiv.addEventListener("mouseenter", () => {
+          if (!this.canMoveShips) return;
+          if (this._shipMoving !== undefined) {
+            this._updateMovingShipPosition(i, j);
+          }
+        });
+      }
+    }
+    
+    document.addEventListener("keypress", (e) => {
+      if (!this.canMoveShips) return;
+      if (this._shipMoving !== undefined && e.code === "Space") {
+        const newOrientation = this._shipMoving.orientation === ShipOrientation.HORIZONTAL ? ShipOrientation.VERTICAL : ShipOrientation.HORIZONTAL;
+        if (this.playerBoard.isValidShipPosition(this._shipMoving, newOrientation)) { 
+          this._shipMoving.flip();
+          console.log(this._shipMoving.orientation);
+          this.playerBoard.updateBoard(this.playerShips);
+        }
+      }
+    });
+  }
+
+  private _updateMovingShipPosition(x: Coordinate, y: Coordinate) {
+    // there currently is a ship being moved
+    const oldPosition = [this._shipMoving!.x, this._shipMoving!.y];
+    this._shipMoving!.x = x;
+    this._shipMoving!.y = y;
+    if (this.playerBoard.isValidShipPosition(this._shipMoving!)) {
+      this.playerBoard.updateBoard(this.playerShips);
+    } else {
+      // move ship back to old position if new is invalid
+      this._shipMoving!.x = oldPosition[0];
+      this._shipMoving!.y = oldPosition[1];
+    }
   }
 }
 

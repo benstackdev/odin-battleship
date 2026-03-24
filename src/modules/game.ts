@@ -18,11 +18,12 @@ export class Game {
   readonly BOARD_SIZE = 10;
 
   shipSelectDiv: HTMLDivElement | null = document.querySelector(".ship-select");
+  randomizeBoardButton: HTMLButtonElement | null = document.querySelector(".randomize-board");
   startGameButton: HTMLButtonElement | null = document.querySelector("button.start-game");
   currentTurnDiv: HTMLDivElement | null = document.querySelector(".turn span.current-turn");
 
-  private _humanPlayer: Player;
-  private _computerPlayer: Player;
+  private _humanPlayer: HumanPlayer;
+  private _computerPlayer: ComputerPlayer;
 
   private _currentTurn: Player;
   private _computerTurnDelay: number = 1000;
@@ -38,9 +39,19 @@ export class Game {
     this.currentTurnDiv!.textContent = "You";
 
     this.startGameButton?.addEventListener("click", () => {
-      if (this._gameState === GameState.SETUP) this._gameState = GameState.PLAYING;
+      if (this._gameState === GameState.SETUP) {
+        this._gameState = GameState.PLAYING;
+        this._humanPlayer.canMoveShips = false;
+      }
       this.startGameButton!.style.visibility = "hidden";
+      this.randomizeBoardButton!.style.visibility = "hidden";
       this.humanTurnInit();
+    });
+
+    this.randomizeBoardButton?.addEventListener("click", () => {
+      if (this._gameState === GameState.SETUP) {
+        this._humanPlayer.randomizeShipLocations();
+      }
     });
 
     this.setupGameInit();
@@ -50,7 +61,7 @@ export class Game {
     this._humanPlayer.initPlayerShips();
     this._computerPlayer.initPlayerShips();
 
-    // set up display for draggable ship objects
+    // ! Deprecated, remove eventually
     for (const ship of this._humanPlayer.playerShips) {
       let shipSelectContainer: HTMLDivElement | null;
       switch(ship.length) {
@@ -72,6 +83,8 @@ export class Game {
       shipSelectContainer?.appendChild(draggableShip.element);
     }
   }
+
+  // TODO: Check win condition on each turn and change game state
 
   humanTurnInit() {
     // set up listeners for computer board cells so player can send attacks

@@ -24,6 +24,7 @@ export class GameBoard {
     get gameBoardDiv() { return this._gameBoardDiv; }
     // optionally pass in second argument to check ship with specific orientation,
     // otherwise check ship at its current orientation
+    // * Eventually refactor to add newX, newY as params?
     isValidShipPosition(ship, orientation) {
         if (ship.x === undefined || ship.y === undefined)
             return true;
@@ -36,7 +37,7 @@ export class GameBoard {
             // a) in bounds
             if (ship.x + xoff <= 9 && ship.x + xoff >= 0 &&
                 ship.y + yoff <= 9 && ship.y + yoff >= 0) {
-                if (!this.isBufferAroundShip(ship, ship.x + xoff, ship.y + yoff)) {
+                if (!this._isBufferAroundShip(ship, ship.x + xoff, ship.y + yoff)) {
                     return false;
                 }
             }
@@ -45,7 +46,7 @@ export class GameBoard {
         }
         return true;
     }
-    isBufferAroundShip(ship, x, y) {
+    _isBufferAroundShip(ship, x, y) {
         // - not overlapping other existing ships (when i = 0 and j = 0 below)
         // - has one square buffer all around itself
         for (let i = -1; i <= 1; i++) {
@@ -58,7 +59,6 @@ export class GameBoard {
                     // console.log(`${xoffAdj}, ${yoffAdj} ${JSON.stringify(this._board[xoffAdj][yoffAdj].occupiedBy?.length)}`);
                     if (this._board[xoffAdj][yoffAdj].occupiedBy !== undefined &&
                         this._board[xoffAdj][yoffAdj].occupiedBy !== ship) {
-                        console.log(`found conflict at: ${xoffAdj}, ${yoffAdj}`);
                         return false;
                     }
                 }
@@ -71,6 +71,7 @@ export class GameBoard {
         for (let i = 0; i < this.BOARD_SIZE; i++) {
             for (let j = 0; j < this.BOARD_SIZE; j++) {
                 this._board[i][j].occupiedBy = undefined;
+                this._board[i][j].isFixed = true;
             }
         }
         // Iterate through ships and place them on board according to their orientation
@@ -81,6 +82,7 @@ export class GameBoard {
                 const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
                 const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
                 this._board[ship.x + xoff][ship.y + yoff].occupiedBy = ship;
+                this._board[ship.x + xoff][ship.y + yoff].isFixed = !ship.isMoving;
             }
         }
         this.updateDisplay();
@@ -137,6 +139,10 @@ export class GameBoard {
                 }
                 if (this._board[i][j].isHit)
                     cell?.classList.add("hit");
+                if (this._board[i][j].isFixed === false)
+                    cell?.classList.add("not-fixed");
+                else
+                    cell?.classList.remove("not-fixed");
             }
         }
     }

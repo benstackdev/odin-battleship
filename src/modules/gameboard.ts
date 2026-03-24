@@ -32,19 +32,21 @@ export class GameBoard {
 
   // optionally pass in second argument to check ship with specific orientation,
   // otherwise check ship at its current orientation
+  
+  // * Eventually refactor to add newX, newY as params?
   isValidShipPosition(ship: Ship, orientation?: ShipOrientation): boolean {
     if (ship.x === undefined || ship.y === undefined) return true;
     // skip base coordinate (self) if checking for valid rotation
     const checkOrientation = (orientation !== undefined) ? orientation : ship.orientation;
     for (let i = 0; i < ship.length; i++) {
       
-      const xoff = (checkOrientation === ShipOrientation.HORIZONTAL) ? i : 0;
+      const xoff = (checkOrientation === ShipOrientation.HORIZONTAL) ?  i : 0;
       const yoff = (checkOrientation === ShipOrientation.VERTICAL) ? i : 0;
       // check that ship is: 
       // a) in bounds
       if (ship.x + xoff <= 9 && ship.x + xoff >= 0 &&
         ship.y + yoff <= 9 && ship.y + yoff >= 0) {
-        if (!this.isBufferAroundShip(ship, ship.x + xoff as Coordinate, ship.y + yoff as Coordinate)) {
+        if (!this._isBufferAroundShip(ship, ship.x + xoff as Coordinate, ship.y + yoff as Coordinate)) {
           return false;
         }
       } else return false;
@@ -53,7 +55,7 @@ export class GameBoard {
     return true;
   }
 
-  private isBufferAroundShip(ship: Ship, x: Coordinate, y: Coordinate) {
+  private _isBufferAroundShip(ship: Ship, x: Coordinate, y: Coordinate) {
     // - not overlapping other existing ships (when i = 0 and j = 0 below)
     // - has one square buffer all around itself
     for (let i = -1; i <= 1; i++) {
@@ -66,7 +68,6 @@ export class GameBoard {
           // console.log(`${xoffAdj}, ${yoffAdj} ${JSON.stringify(this._board[xoffAdj][yoffAdj].occupiedBy?.length)}`);
           if (this._board[xoffAdj][yoffAdj].occupiedBy !== undefined &&
             this._board[xoffAdj][yoffAdj].occupiedBy !== ship) {
-            console.log(`found conflict at: ${xoffAdj}, ${yoffAdj}`);
             return false;
           }
         }
@@ -81,6 +82,7 @@ export class GameBoard {
     for (let i = 0; i < this.BOARD_SIZE; i++) {
       for (let j = 0; j < this.BOARD_SIZE; j++) {
         this._board[i][j].occupiedBy = undefined;
+        this._board[i][j].isFixed = true;
       }
     }
 
@@ -91,6 +93,7 @@ export class GameBoard {
         const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
         const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
         this._board[ship.x + xoff][ship.y + yoff].occupiedBy = ship;
+        this._board[ship.x + xoff][ship.y + yoff].isFixed = !ship.isMoving;
       }
     }
 
@@ -101,8 +104,8 @@ export class GameBoard {
     this._gameBoardDiv.className = `game-board`;
     if (this.gameDiv !== null) this.gameDiv.appendChild(this._gameBoardDiv);
 
-    for (let i = 0; i < this.BOARD_SIZE; i++) {
-      for (let j = 0; j < this.BOARD_SIZE; j++) {
+    for (let i = 0 as Coordinate; i < this.BOARD_SIZE; i++) {
+      for (let j = 0 as Coordinate; j < this.BOARD_SIZE; j++) {
         // eventual refactor to use GameCellDisplay object
         const cell = document.createElement("div");
         cell.className = `game-board-cell x${this._id}-${j} y${this._id}-${i}`;
@@ -135,7 +138,7 @@ export class GameBoard {
     gameBoardLabelDiv.className = "game-board-label";
     gameBoardLabelDiv.textContent = gameBoardLabelText;
     
-    this.gameDiv.appendChild(gameBoardLabelDiv);
+    this.gameDiv!.appendChild(gameBoardLabelDiv);
 
   }
 
@@ -150,7 +153,11 @@ export class GameBoard {
         } else {
           if (cell?.classList.contains("ship")) cell?.classList.remove("ship");
         }
+        
         if (this._board[i][j].isHit) cell?.classList.add("hit");
+
+        if (this._board[i][j].isFixed === false) cell?.classList.add("not-fixed");
+        else cell?.classList.remove("not-fixed");
       }
     }
   }

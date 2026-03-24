@@ -17,7 +17,11 @@ declare class Player {
     randomizeShipLocations(): void;
 }
 declare class HumanPlayer extends Player {
+    private _shipMoving;
+    canMoveShips: boolean;
     constructor();
+    initShipMovementEvents(): void;
+    private _updateMovingShipPosition;
 }
 declare class ComputerPlayer extends Player {
     constructor();
