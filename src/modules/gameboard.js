@@ -1,6 +1,7 @@
 import { Ship, ShipOrientation } from "./ship.js";
 import { GameCell } from "./gamecell.js";
 import { PlayerID } from "./game.js";
+// TODO: reset board state on game restart
 export class GameBoard {
     gameDiv = document.querySelector(".game");
     _gameBoardDiv = document.createElement("div");
@@ -72,6 +73,7 @@ export class GameBoard {
             for (let j = 0; j < this.BOARD_SIZE; j++) {
                 this._board[i][j].occupiedBy = undefined;
                 this._board[i][j].isFixed = true;
+                this._board[i][j].isValid = true;
             }
         }
         // Iterate through ships and place them on board according to their orientation
@@ -81,8 +83,17 @@ export class GameBoard {
             for (let i = 0; i < ship.length; i++) {
                 const xoff = (ship.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
                 const yoff = (ship.orientation === ShipOrientation.VERTICAL) ? i : 0;
-                this._board[ship.x + xoff][ship.y + yoff].occupiedBy = ship;
-                this._board[ship.x + xoff][ship.y + yoff].isFixed = !ship.isMoving;
+                const shipX = ship.x + xoff;
+                const shipY = ship.y + yoff;
+                // don't occupy cell if ship is moving
+                if (ship.isMoving) {
+                    this._board[shipX][shipY].occupiedBy = undefined;
+                    this._board[shipX][shipY].isValid = ship.isValidPosition;
+                }
+                else {
+                    this._board[shipX][shipY].occupiedBy = ship;
+                }
+                this._board[shipX][shipY].isFixed = !ship.isMoving;
             }
         }
         this.updateDisplay();
@@ -139,10 +150,15 @@ export class GameBoard {
                 }
                 if (this._board[i][j].isHit)
                     cell?.classList.add("hit");
-                if (this._board[i][j].isFixed === false)
+                if (this._board[i][j].isFixed === false) {
                     cell?.classList.add("not-fixed");
-                else
+                    if (!this._board[i][j].isValid)
+                        cell?.classList.add("invalid");
+                }
+                else {
                     cell?.classList.remove("not-fixed");
+                    cell?.classList.remove("invalid");
+                }
             }
         }
     }

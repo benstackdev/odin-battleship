@@ -24,7 +24,17 @@ declare class HumanPlayer extends Player {
     private _updateMovingShipPosition;
 }
 declare class ComputerPlayer extends Player {
+    private _availableCells;
+    private _shipHit;
+    private _shipHitAdjacent;
+    private _shipHitOrientation;
     constructor();
+    findAttack(): [Coordinate, Coordinate];
+    addToShipHit(pos: [Coordinate, Coordinate]): void;
+    private _getCoordinates;
+    private _getRandomGlobalPosition;
+    private _getRandomAdjacentPosition;
+    private _getRandomDirectedPosition;
 }
 export { Player, HumanPlayer, ComputerPlayer };
 //# sourceMappingURL=player.d.ts.map

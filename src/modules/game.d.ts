@@ -1,4 +1,3 @@
-import type { Coordinate } from "../types/battleship_types.js";
 export declare enum GameState {
     SETUP = 1,
     PLAYING = 2,
@@ -10,20 +9,26 @@ export declare enum PlayerID {
 }
 export declare class Game {
     readonly BOARD_SIZE = 10;
-    shipSelectDiv: HTMLDivElement | null;
-    randomizeBoardButton: HTMLButtonElement | null;
-    startGameButton: HTMLButtonElement | null;
-    currentTurnDiv: HTMLDivElement | null;
+    gameSetupElements: NodeListOf<HTMLElement>;
+    gamePlayingElements: NodeListOf<HTMLElement>;
+    gameEndElements: NodeListOf<HTMLElement>;
+    randomizeBoardButton: HTMLButtonElement;
+    startGameButton: HTMLButtonElement;
+    newGameButton: HTMLButtonElement;
+    turnDiv: HTMLDivElement;
+    currentTurnDiv: HTMLDivElement;
+    winnerDiv: HTMLSpanElement;
     private _humanPlayer;
     private _computerPlayer;
     private _currentTurn;
     private _computerTurnDelay;
     private _gameState;
     constructor();
+    private _updateElementVisibility;
     setupGameInit(): void;
     humanTurnInit(): void;
     computerTurn(): Promise<void>;
-    computerFindAttack(): [Coordinate, Coordinate];
     toggleTurn(): void;
+    private _gameOver;
 }
 //# sourceMappingURL=game.d.ts.map

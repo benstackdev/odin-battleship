@@ -13,36 +13,66 @@ export var PlayerID;
 /* Game state manager */
 export class Game {
     BOARD_SIZE = 10;
-    shipSelectDiv = document.querySelector(".ship-select");
+    gameSetupElements = document.querySelectorAll(".game-setup");
+    gamePlayingElements = document.querySelectorAll(".game-playing");
+    gameEndElements = document.querySelectorAll(".game-end");
     randomizeBoardButton = document.querySelector(".randomize-board");
     startGameButton = document.querySelector("button.start-game");
+    newGameButton = document.querySelector("button.new-game");
+    turnDiv = document.querySelector(".turn");
     currentTurnDiv = document.querySelector(".turn span.current-turn");
+    winnerDiv = document.querySelector("span.game-winner");
     _humanPlayer;
     _computerPlayer;
     _currentTurn;
-    _computerTurnDelay = 1000;
+    _computerTurnDelay = 500;
     _gameState;
     constructor() {
         this._humanPlayer = new HumanPlayer();
         this._computerPlayer = new ComputerPlayer();
         this._gameState = GameState.SETUP;
+        this._updateElementVisibility();
         this._currentTurn = this._humanPlayer;
         this.currentTurnDiv.textContent = "You";
-        this.startGameButton?.addEventListener("click", () => {
+        this.startGameButton.addEventListener("click", () => {
             if (this._gameState === GameState.SETUP) {
                 this._gameState = GameState.PLAYING;
+                this._updateElementVisibility();
                 this._humanPlayer.canMoveShips = false;
             }
-            this.startGameButton.style.visibility = "hidden";
-            this.randomizeBoardButton.style.visibility = "hidden";
             this.humanTurnInit();
         });
-        this.randomizeBoardButton?.addEventListener("click", () => {
+        this.randomizeBoardButton.addEventListener("click", () => {
             if (this._gameState === GameState.SETUP) {
                 this._humanPlayer.randomizeShipLocations();
             }
         });
+        this.newGameButton.addEventListener("click", () => {
+            if (this._gameState === GameState.END) {
+                this._gameState = GameState.SETUP;
+                this._updateElementVisibility();
+                // TODO: reset board state on game restart
+            }
+        });
         this.setupGameInit();
+    }
+    _updateElementVisibility() {
+        switch (this._gameState) {
+            case GameState.SETUP:
+                this.gameSetupElements.forEach(elem => elem.style.visibility = "visible");
+                this.gamePlayingElements.forEach(elem => elem.style.visibility = "hidden");
+                this.gameEndElements.forEach(elem => elem.style.visibility = "hidden");
+                break;
+            case GameState.PLAYING:
+                this.gamePlayingElements.forEach(elem => elem.style.visibility = "visible");
+                this.gameSetupElements.forEach(elem => elem.style.visibility = "hidden");
+                this.gameEndElements.forEach(elem => elem.style.visibility = "hidden");
+                break;
+            case GameState.END:
+                this.gameEndElements.forEach(elem => elem.style.visibility = "visible");
+                this.gameSetupElements.forEach(elem => elem.style.visibility = "hidden");
+                this.gamePlayingElements.forEach(elem => elem.style.visibility = "hidden");
+        }
     }
     setupGameInit() {
         this._humanPlayer.initPlayerShips();
@@ -65,6 +95,8 @@ export class Game {
                         const wasHit = this._humanPlayer.sendAttack(this._computerPlayer, i, j);
                         if (!wasHit)
                             this.toggleTurn();
+                        if (this._computerPlayer.allSunk())
+                            this._gameOver("You");
                     }
                 });
             }
@@ -75,27 +107,19 @@ export class Game {
         // wait for delay, then make move
         await sleep(this._computerTurnDelay);
         // choose non-hit random position and send a hit
-        let attackCoordinate = this.computerFindAttack();
+        let attackCoordinate = this._computerPlayer.findAttack();
         let wasHit = this._computerPlayer.sendAttack(this._humanPlayer, attackCoordinate[0], attackCoordinate[1]);
         console.log(`${attackCoordinate[0]}, ${attackCoordinate[1]}: ${wasHit}`);
         while (wasHit) {
+            if (this._humanPlayer.allSunk())
+                this._gameOver("Computer");
+            this._computerPlayer.addToShipHit(attackCoordinate);
             await sleep(this._computerTurnDelay);
-            attackCoordinate = this.computerFindAttack();
+            attackCoordinate = this._computerPlayer.findAttack();
             wasHit = this._computerPlayer.sendAttack(this._humanPlayer, attackCoordinate[0], attackCoordinate[1]);
             console.log(`${attackCoordinate[0]}, ${attackCoordinate[1]}: ${wasHit}`);
         }
         this.toggleTurn();
-    }
-    // TODO: refactor to only select among available positions
-    computerFindAttack() {
-        const humanGameBoard = this._humanPlayer.playerBoard;
-        let turnX = Math.floor(Math.random() * 10);
-        let turnY = Math.floor(Math.random() * 10);
-        while (humanGameBoard.board[turnX][turnY].isHit !== false) {
-            turnX = Math.floor(Math.random() * 10);
-            turnY = Math.floor(Math.random() * 10);
-        }
-        return [turnX, turnY];
     }
     toggleTurn() {
         if (this._currentTurn === this._humanPlayer) {
@@ -107,6 +131,11 @@ export class Game {
             this._currentTurn = this._humanPlayer;
             this.currentTurnDiv.textContent = "You";
         }
+    }
+    _gameOver(winner) {
+        this._gameState = GameState.END;
+        this._updateElementVisibility();
+        this.winnerDiv.textContent = winner;
     }
 }
 //# sourceMappingURL=game.js.map

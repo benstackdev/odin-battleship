@@ -24,6 +24,7 @@ export declare class Ship implements ShipObject {
     private _hits;
     private _isSunk;
     private _isMoving;
+    private _isValidPosition;
     private _shipSegmentHit;
     constructor(len: ShipLength, x: Coordinate | undefined, y: Coordinate | undefined, orientation?: ShipOrientation);
     get hits(): number;
@@ -34,9 +35,11 @@ export declare class Ship implements ShipObject {
     get orientation(): ShipOrientation;
     get shipSegmentHit(): boolean[];
     get isMoving(): boolean;
+    get isValidPosition(): boolean;
     set x(newx: Coordinate | undefined);
     set y(newy: Coordinate | undefined);
     set isMoving(moving: boolean);
+    set isValidPosition(isValid: boolean);
     takeHit(off: number): void;
     isHit(off: number): boolean | undefined;
     flip(): void;

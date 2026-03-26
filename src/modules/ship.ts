@@ -30,6 +30,7 @@ export class Ship implements ShipObject {
   private _hits: number = 0;
   private _isSunk: boolean = false;
   private _isMoving: boolean = false;
+  private _isValidPosition: boolean = true;
   private _shipSegmentHit: boolean[];
 
   constructor(len: ShipLength, x: Coordinate | undefined, y: Coordinate | undefined, orientation: ShipOrientation = ShipOrientation.HORIZONTAL) {
@@ -48,10 +49,12 @@ export class Ship implements ShipObject {
   get orientation() { return this._orientation; }
   get shipSegmentHit() { return this._shipSegmentHit; }
   get isMoving() { return this._isMoving; }
+  get isValidPosition() { return this._isValidPosition; }
 
   set x(newx: Coordinate | undefined) { this._x = newx; }
   set y(newy: Coordinate | undefined) { this._y = newy; }
-  set isMoving(moving: boolean) { this._isMoving = moving; } 
+  set isMoving(moving: boolean) { this._isMoving = moving; }
+  set isValidPosition(isValid: boolean) { this._isValidPosition = isValid; }
 
   takeHit(off: number) {
     if (this.isHit(off) === undefined || 

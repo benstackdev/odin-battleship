@@ -14,11 +14,15 @@
   <div class="content">
     <div class="game"></div>
     <div class="options">
-      <div class="turn">Current turn: <span class="current-turn"></span></div>
-      <div class="options-buttons">
-        <button class="randomize-board">Randomize Board</button>
-        <button class="start-game">Start Game</button>
+      <div class="turn game-playing">Current turn: <span class="current-turn"></span></div>
+      <div class="options-header game-setup">Options</div>
+      <div class="options-buttons game-setup">
+        <button class="randomize-board game-setup">Randomize Board</button>
+        <button class="start-game game-setup">Start Game</button>
       </div>
+      <div class="setup-instructions game-setup"></div>
+      <div class="win game-end"><span class="game-winner"></span> wins!</div>
+      <button class="new-game game-end">New Game</button>
     </div>
   </div>
   <footer>

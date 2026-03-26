@@ -16,16 +16,23 @@ export enum PlayerID {
 export class Game {
   readonly BOARD_SIZE = 10;
 
-  shipSelectDiv: HTMLDivElement | null = document.querySelector(".ship-select");
-  randomizeBoardButton: HTMLButtonElement | null = document.querySelector(".randomize-board");
-  startGameButton: HTMLButtonElement | null = document.querySelector("button.start-game");
-  currentTurnDiv: HTMLDivElement | null = document.querySelector(".turn span.current-turn");
+  gameSetupElements = document.querySelectorAll(".game-setup") as NodeListOf<HTMLElement>;
+  gamePlayingElements = document.querySelectorAll(".game-playing") as NodeListOf<HTMLElement>;
+  gameEndElements = document.querySelectorAll(".game-end") as NodeListOf<HTMLElement>;
+
+  randomizeBoardButton: HTMLButtonElement = document.querySelector(".randomize-board") as HTMLButtonElement;
+  startGameButton: HTMLButtonElement = document.querySelector("button.start-game") as HTMLButtonElement;
+  newGameButton: HTMLButtonElement = document.querySelector("button.new-game") as HTMLButtonElement;
+  
+  turnDiv: HTMLDivElement = document.querySelector(".turn") as HTMLDivElement;
+  currentTurnDiv: HTMLDivElement = document.querySelector(".turn span.current-turn") as HTMLDivElement;
+  winnerDiv: HTMLSpanElement = document.querySelector("span.game-winner") as HTMLSpanElement;
 
   private _humanPlayer: HumanPlayer;
   private _computerPlayer: ComputerPlayer;
 
   private _currentTurn: Player;
-  private _computerTurnDelay: number = 1000;
+  private _computerTurnDelay: number = 500;
 
   private _gameState: GameState;
 
@@ -33,27 +40,58 @@ export class Game {
     this._humanPlayer = new HumanPlayer();
     this._computerPlayer = new ComputerPlayer();
     this._gameState = GameState.SETUP;
+    this._updateElementVisibility();
 
     this._currentTurn = this._humanPlayer;
-    this.currentTurnDiv!.textContent = "You";
-
-    this.startGameButton?.addEventListener("click", () => {
+    this.currentTurnDiv.textContent = "You";
+    
+    this.startGameButton.addEventListener("click", () => {
       if (this._gameState === GameState.SETUP) {
         this._gameState = GameState.PLAYING;
+        this._updateElementVisibility();
         this._humanPlayer.canMoveShips = false;
       }
-      this.startGameButton!.style.visibility = "hidden";
-      this.randomizeBoardButton!.style.visibility = "hidden";
       this.humanTurnInit();
     });
 
-    this.randomizeBoardButton?.addEventListener("click", () => {
+    this.randomizeBoardButton.addEventListener("click", () => {
       if (this._gameState === GameState.SETUP) {
         this._humanPlayer.randomizeShipLocations();
       }
     });
 
+    this.newGameButton.addEventListener("click", () => {
+      if (this._gameState === GameState.END) {
+        this._gameState = GameState.SETUP;
+        this._updateElementVisibility();
+        // TODO: reset board state on game restart
+      }
+    })
+
     this.setupGameInit();
+  }
+
+  private _updateElementVisibility() {
+    switch(this._gameState) {
+      
+      case GameState.SETUP:
+        this.gameSetupElements.forEach(elem => elem.style.visibility = "visible");
+        this.gamePlayingElements.forEach(elem => elem.style.visibility = "hidden");
+        this.gameEndElements.forEach(elem => elem.style.visibility = "hidden");
+        break;
+
+      case GameState.PLAYING:
+        this.gamePlayingElements.forEach(elem => elem.style.visibility = "visible");
+        this.gameSetupElements.forEach(elem => elem.style.visibility = "hidden");
+        this.gameEndElements.forEach(elem => elem.style.visibility = "hidden");
+        break;
+      
+      case GameState.END:
+        this.gameEndElements.forEach(elem => elem.style.visibility = "visible");
+        this.gameSetupElements.forEach(elem => elem.style.visibility = "hidden");
+        this.gamePlayingElements.forEach(elem => elem.style.visibility = "hidden");
+
+    }
   }
 
   setupGameInit() {
@@ -62,7 +100,6 @@ export class Game {
   }
 
   // TODO: Check win condition on each turn and change game state
-
   humanTurnInit() {
     // set up listeners for computer board cells so player can send attacks
     const computerGameBoard = this._computerPlayer.playerBoard;
@@ -80,6 +117,7 @@ export class Game {
           if (this._currentTurn === this._humanPlayer) {
             const wasHit = this._humanPlayer.sendAttack(this._computerPlayer, i, j);
             if (!wasHit) this.toggleTurn();
+            if (this._computerPlayer.allSunk()) this._gameOver("You");
           }
         });
       }
@@ -93,30 +131,20 @@ export class Game {
     await sleep(this._computerTurnDelay);
     
     // choose non-hit random position and send a hit
-    let attackCoordinate = this.computerFindAttack();
+    let attackCoordinate = this._computerPlayer.findAttack();
 
     let wasHit = this._computerPlayer.sendAttack(this._humanPlayer, attackCoordinate[0], attackCoordinate[1]);
     console.log(`${attackCoordinate[0]}, ${attackCoordinate[1]}: ${wasHit}`);
     while (wasHit) {
+      if (this._humanPlayer.allSunk()) this._gameOver("Computer");
+      this._computerPlayer.addToShipHit(attackCoordinate);
       await sleep(this._computerTurnDelay);
-      attackCoordinate = this.computerFindAttack();
+      attackCoordinate = this._computerPlayer.findAttack();
       wasHit = this._computerPlayer.sendAttack(this._humanPlayer, attackCoordinate[0], attackCoordinate[1]);
       console.log(`${attackCoordinate[0]}, ${attackCoordinate[1]}: ${wasHit}`);
     }
 
     this.toggleTurn();
-  }
-
-  // TODO: refactor to only select among available positions
-  computerFindAttack(): [Coordinate, Coordinate] {
-    const humanGameBoard = this._humanPlayer.playerBoard;
-    let turnX = Math.floor(Math.random() * 10) as Coordinate;
-    let turnY = Math.floor(Math.random() * 10) as Coordinate;
-    while (humanGameBoard.board[turnX][turnY].isHit !== false) {
-      turnX = Math.floor(Math.random() * 10) as Coordinate;
-      turnY = Math.floor(Math.random() * 10) as Coordinate;
-    }
-    return [turnX, turnY];
   }
 
   toggleTurn() {
@@ -128,5 +156,11 @@ export class Game {
       this._currentTurn = this._humanPlayer;
       this.currentTurnDiv!.textContent = "You";
     }
+  }
+
+  private _gameOver(winner: string) {
+    this._gameState = GameState.END;
+    this._updateElementVisibility();  
+    this.winnerDiv.textContent = winner;
   }
 }

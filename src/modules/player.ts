@@ -158,20 +158,23 @@ class HumanPlayer extends Player {
         cellDiv.addEventListener("click", () => {
           if (!this.canMoveShips) return;
           // get state of the cell on game board
-          const ship = board[i][j].occupiedBy;
-          if (ship !== undefined) {
-            if (this._shipMoving) {
-              // is defined: stop moving this ship and place at location
-              this._shipMoving = undefined;
-              ship.isMoving = false;
-              this.playerBoard.updateBoard(this.playerShips);
-            } else {
-              // undefined: start moving
+          if (this._shipMoving) {
+            // early return if ship position is invalid
+            if (!this._shipMoving.isValidPosition) return;
+            
+            // is defined and valid: stop moving this ship and place at location
+            this._shipMoving.isMoving = false;
+            this._shipMoving = undefined;
+          } else {
+            const ship = board[i][j].occupiedBy;
+            // undefined: start moving
+            if (ship !== undefined) {
               this._shipMoving = ship; // remember the ship being moved   
               ship.isMoving = true;
               this._updateMovingShipPosition(i, j);
             }
           }
+          this.playerBoard.updateBoard(this.playerShips);
         }); 
       
         cellDiv.addEventListener("mouseenter", () => {
@@ -186,34 +189,180 @@ class HumanPlayer extends Player {
     document.addEventListener("keypress", (e) => {
       if (!this.canMoveShips) return;
       if (this._shipMoving !== undefined && e.code === "Space") {
-        const newOrientation = this._shipMoving.orientation === ShipOrientation.HORIZONTAL ? ShipOrientation.VERTICAL : ShipOrientation.HORIZONTAL;
-        if (this.playerBoard.isValidShipPosition(this._shipMoving, newOrientation)) { 
-          this._shipMoving.flip();
-          console.log(this._shipMoving.orientation);
-          this.playerBoard.updateBoard(this.playerShips);
-        }
+        this._shipMoving.flip();
+        console.log(this._shipMoving.orientation);
+        this.playerBoard.updateBoard(this.playerShips);
       }
     });
   }
 
   private _updateMovingShipPosition(x: Coordinate, y: Coordinate) {
-    // there currently is a ship being moved
-    const oldPosition = [this._shipMoving!.x, this._shipMoving!.y];
+    const oldX = this._shipMoving!.x;
+    const oldY = this._shipMoving!.y;
     this._shipMoving!.x = x;
     this._shipMoving!.y = y;
-    if (this.playerBoard.isValidShipPosition(this._shipMoving!)) {
+
+    if (!this.playerBoard.isValidShipPosition(this._shipMoving!)) {
+      this._shipMoving!.x = oldX;
+      this._shipMoving!.y = oldY;
+    }
+    this.playerBoard.updateBoard(this.playerShips);
+    return;
+
+    // ! Broken code, fix eventually?
+    if (this._shipMoving !== undefined) {  
+      // there currently is a ship being moved
+      // still ensure that any x,y is within the bounds of the board
+      
+      this._shipMoving.isValidPosition = this.playerBoard.isValidShipPosition(this._shipMoving);
+      const maxBound = this._shipMoving.orientation === ShipOrientation.HORIZONTAL ?
+                    x + this._shipMoving.length - 1 : y + this._shipMoving.length - 1;
+
+      if (x < 0 || x > 9 || y < 0 || y > 9 || maxBound > 9) return;
+
+      this._shipMoving.x = x;
+      this._shipMoving.y = y;
       this.playerBoard.updateBoard(this.playerShips);
-    } else {
-      // move ship back to old position if new is invalid
-      this._shipMoving!.x = oldPosition[0];
-      this._shipMoving!.y = oldPosition[1];
     }
   }
 }
 
+// * Maybe refactor ComputerPlayer to use State Machine
+
 class ComputerPlayer extends Player {
+  // key: [Coordinate, Coordinate], value: boolean
+  private _availableCells = new Set<number>();
+  private _shipHit: [Coordinate, Coordinate][] = [];
+  private _shipHitAdjacent = new Set<number>();
+  private _shipHitOrientation: ShipOrientation | undefined;
+
   constructor() {
     super(PlayerID.COMPUTER);
+
+    // all cells available to hit at start
+    for (let i = 0 as Coordinate; i < this.BOARD_SIZE; i++) {
+      for (let j = 0 as Coordinate; j < this.BOARD_SIZE; j++) {
+        this._availableCells.add(i * this.BOARD_SIZE + j);
+      }
+    }
+  }
+
+  findAttack(): [Coordinate, Coordinate] {
+    let attackPosition: [Coordinate, Coordinate] | undefined;
+    if (this._shipHit.length > 0) {
+      // know we've hit a ship
+      if (this._shipHitOrientation !== undefined) {
+        // know we've hit a ship AND what the orientation of that ship is
+        attackPosition = this._getRandomDirectedPosition();
+
+      } else {
+        // don't know the orientation, so just guess some adjacent position
+        attackPosition = this._getRandomAdjacentPosition();
+      }
+
+      if (attackPosition !== undefined) {
+        this._availableCells.delete(attackPosition[0] * this.BOARD_SIZE + attackPosition[1]);
+        return attackPosition;
+      }
+      
+      // if we make it past here, attackPosition was undefined, so clear out shipHit and shipHitOrientation
+      this._shipHit = [];
+      this._shipHitAdjacent.clear();
+      this._shipHitOrientation = undefined;
+    } 
+    
+    // find random spot to hit
+    attackPosition = this._getRandomGlobalPosition();
+    this._availableCells.delete(attackPosition[0] * this.BOARD_SIZE + attackPosition[1]);
+
+    return attackPosition;
+  }
+
+  addToShipHit(pos: [Coordinate, Coordinate]) { 
+    // get orientation if we can
+    if (this._shipHit.length === 1 && this._shipHitOrientation === undefined) {
+      // if x of the old hit ship position matches the new position, the orientation of the ship must be vertical, otherwise horizontal
+      if (pos[0] === this._shipHit[0][0]) this._shipHitOrientation = ShipOrientation.VERTICAL;
+      else this._shipHitOrientation = ShipOrientation.HORIZONTAL;
+    }
+    
+    this._shipHit.push(pos);
+  }
+
+  // get two coordinates from a single numbered position
+  private _getCoordinates(pos: number): [Coordinate, Coordinate] {
+    const x = Math.floor(pos / this.BOARD_SIZE) as Coordinate;
+    const y = pos % this.BOARD_SIZE as Coordinate;
+
+    return [x, y];
+  }
+  
+  private _getRandomGlobalPosition(): [Coordinate, Coordinate] {
+    const position = Array.from(this._availableCells)[Math.floor(Math.random() * this._availableCells.size)];
+    return this._getCoordinates(position);
+  }
+
+  // TODO: Make another helper function for converting coordinates to cell position (as x * 10 + y)
+  private _getRandomAdjacentPosition(): [Coordinate, Coordinate] | undefined {
+    // populate with adjacent spots from this._shipHit[0]
+    if (this._shipHitAdjacent.size === 0) {
+      const shipHitX = this._shipHit[0][0];
+      const shipHitY = this._shipHit[0][1];
+
+      const up = [shipHitX, shipHitY - 1 as Coordinate] as [Coordinate, Coordinate];
+      const down = [shipHitX, shipHitY + 1 as Coordinate] as [Coordinate, Coordinate];
+      const left = [shipHitX - 1 as Coordinate, shipHitY] as [Coordinate, Coordinate];
+      const right = [shipHitX + 1 as Coordinate, shipHitY] as [Coordinate, Coordinate];
+    
+      if (this._availableCells.has(up[0] * this.BOARD_SIZE + up[1]) && up[1] >= 0) this._shipHitAdjacent.add(up[0] * this.BOARD_SIZE + up[1]);
+      if (this._availableCells.has(down[0] * this.BOARD_SIZE + down[1]) && down[1] <= 9) this._shipHitAdjacent.add(down[0] * this.BOARD_SIZE + down[1]);
+      if (this._availableCells.has(left[0] * this.BOARD_SIZE + left[1]) && left[0] >= 0) this._shipHitAdjacent.add(left[0] * this.BOARD_SIZE + left[1]);
+      if (this._availableCells.has(right[0] * this.BOARD_SIZE + right[1]) && right[0] <= 9) this._shipHitAdjacent.add(right[0] * this.BOARD_SIZE + right[1]);
+    }
+
+    // empty return if all adjacent positions have been hit
+    if (this._shipHitAdjacent.size === 0) return;
+
+    // get random adjacent position
+    const randomAdjacentPosition = Array.from(this._shipHitAdjacent)[Math.floor(Math.random() * this._shipHitAdjacent.size)];
+    this._shipHitAdjacent.delete(randomAdjacentPosition);
+    return this._getCoordinates(randomAdjacentPosition);
+  }
+
+  private _getRandomDirectedPosition(): [Coordinate, Coordinate] | undefined {
+    if (this._shipHitOrientation === ShipOrientation.HORIZONTAL) {
+      // horizontal
+      // find min and max x positions to guess from
+      const shipHitY = this._shipHit[0][1]; // since horizontal, the y is the same
+      
+      let xMin = this._shipHit[0][0];
+      let xMax = this._shipHit[0][0];
+      for (let i = 0; i < this._shipHit.length; i++) {
+        if (this._shipHit[i][0] < xMin) xMin = this._shipHit[i][0];
+        if (this._shipHit[i][0] > xMax) xMax = this._shipHit[i][0];
+      }
+
+      // try guessing to the left first, then the right
+      if (xMin > 0 && this._availableCells.has((xMin - 1) * this.BOARD_SIZE + shipHitY)) return [xMin - 1 as Coordinate, shipHitY];
+      else if (xMax < 9 && this._availableCells.has((xMax + 1) * this.BOARD_SIZE + shipHitY)) return [xMax + 1 as Coordinate, shipHitY];
+    } else {
+      // vertical
+      // find min and max y positions to guess from
+      const shipHitX = this._shipHit[0][0]; // since vertical, the x is the same
+      
+      let yMin = this._shipHit[0][1];
+      let yMax = this._shipHit[0][1];
+      for (let i = 0; i < this._shipHit.length; i++) {
+        if (this._shipHit[i][1] < yMin) yMin = this._shipHit[i][1];
+        if (this._shipHit[i][1] > yMax) yMax = this._shipHit[i][1];
+      }
+
+      // try guessing to the left first, then the right
+      if (yMin > 0 && this._availableCells.has(shipHitX * this.BOARD_SIZE + (yMin - 1))) return [shipHitX, yMin - 1 as Coordinate];
+      else if (yMax < 9 && this._availableCells.has(shipHitX * this.BOARD_SIZE + (yMax + 1))) return [shipHitX, yMax + 1 as Coordinate];
+    }
+
+    return;
   }
 }
 
