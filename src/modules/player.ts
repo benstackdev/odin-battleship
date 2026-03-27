@@ -174,7 +174,7 @@ class HumanPlayer extends Player {
               this._updateMovingShipPosition(i, j);
             }
           }
-          this.playerBoard.updateBoard(this.playerShips);
+          this.playerBoard.updateBoard(this.playerShips, this._shipMoving);
         }); 
       
         cellDiv.addEventListener("mouseenter", () => {
@@ -188,33 +188,36 @@ class HumanPlayer extends Player {
     
     document.addEventListener("keypress", (e) => {
       if (!this.canMoveShips) return;
-      if (this._shipMoving !== undefined && e.code === "Space") {
-        this._shipMoving.flip();
-        console.log(this._shipMoving.orientation);
-        this.playerBoard.updateBoard(this.playerShips);
+      if (this._shipMoving !== undefined && (e.code === "Space" || e.code === "KeyR")) {
+        // convoluted check to make sure ship can rotate based on bounds
+        const newBound = this._shipMoving.orientation === ShipOrientation.HORIZONTAL ?
+                          this._shipMoving.y! + this._shipMoving.length - 1 : this._shipMoving.x! + this._shipMoving.length - 1;
+        if (newBound <= 9) {
+          this._shipMoving.flip();
+          this._shipMoving.isValidPosition = this.playerBoard.isValidShipPosition(this._shipMoving);
+          this.playerBoard.updateBoard(this.playerShips, this._shipMoving);
+        }
       }
     });
   }
 
   private _updateMovingShipPosition(x: Coordinate, y: Coordinate) {
-    const oldX = this._shipMoving!.x;
-    const oldY = this._shipMoving!.y;
-    this._shipMoving!.x = x;
-    this._shipMoving!.y = y;
+    // const oldX = this._shipMoving!.x;
+    // const oldY = this._shipMoving!.y;
+    // this._shipMoving!.x = x;
+    // this._shipMoving!.y = y;
 
-    if (!this.playerBoard.isValidShipPosition(this._shipMoving!)) {
-      this._shipMoving!.x = oldX;
-      this._shipMoving!.y = oldY;
-    }
-    this.playerBoard.updateBoard(this.playerShips);
-    return;
+    // if (!this.playerBoard.isValidShipPosition(this._shipMoving!)) {
+    //   this._shipMoving!.x = oldX;
+    //   this._shipMoving!.y = oldY;
+    // }
+    // this.playerBoard.updateBoard(this.playerShips);
+    // return;
 
     // ! Broken code, fix eventually?
     if (this._shipMoving !== undefined) {  
       // there currently is a ship being moved
       // still ensure that any x,y is within the bounds of the board
-      
-      this._shipMoving.isValidPosition = this.playerBoard.isValidShipPosition(this._shipMoving);
       const maxBound = this._shipMoving.orientation === ShipOrientation.HORIZONTAL ?
                     x + this._shipMoving.length - 1 : y + this._shipMoving.length - 1;
 
@@ -222,7 +225,9 @@ class HumanPlayer extends Player {
 
       this._shipMoving.x = x;
       this._shipMoving.y = y;
-      this.playerBoard.updateBoard(this.playerShips);
+      this._shipMoving.isValidPosition = this.playerBoard.isValidShipPosition(this._shipMoving);
+      
+      this.playerBoard.updateBoard(this.playerShips, this._shipMoving);
     }
   }
 }

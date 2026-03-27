@@ -12,7 +12,7 @@ export declare class GameBoard {
     get gameBoardDiv(): HTMLDivElement;
     isValidShipPosition(ship: Ship, orientation?: ShipOrientation): boolean;
     private _isBufferAroundShip;
-    updateBoard(ships: Ship[]): void;
+    updateBoard(ships: Ship[], movingShip?: Ship | undefined): void;
     initDisplay(): void;
     updateDisplay(): void;
 }

@@ -41,7 +41,7 @@ export class Ship implements ShipObject {
     this._orientation = orientation;
   }
 
-  get hits() { return this._hits }
+  get hits() { return this._hits; }
   get length() { return this._length; }
   get isSunk() { return this._isSunk }
   get x() { return this._x; }

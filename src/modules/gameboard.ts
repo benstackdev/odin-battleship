@@ -78,7 +78,7 @@ export class GameBoard {
     return true;
   }
 
-  updateBoard(ships: Ship[]) {
+  updateBoard(ships: Ship[], movingShip?: Ship | undefined) {
     // reset board first before replacing ships
     for (let i = 0; i < this.BOARD_SIZE; i++) {
       for (let j = 0; j < this.BOARD_SIZE; j++) {
@@ -89,6 +89,7 @@ export class GameBoard {
     }
 
     // Iterate through ships and place them on board according to their orientation
+    // Make sure to skip the ship that's moving, if there is one
     for (const ship of ships) {
       if (ship.x === undefined || ship.y === undefined) continue;
       for (let i = 0; i < ship.length; i++) {
@@ -97,14 +98,23 @@ export class GameBoard {
         const shipX = ship.x + xoff;
         const shipY = ship.y + yoff;
 
-        // don't occupy cell if ship is moving
-        if (ship.isMoving) {
-          this._board[shipX][shipY].occupiedBy = undefined;
-          this._board[shipX][shipY].isValid = ship.isValidPosition;
-        } else {
-          this._board[shipX][shipY].occupiedBy = ship;
-        }
-        this._board[shipX][shipY].isFixed = !ship.isMoving;
+        // only occupy non-moving ship cells
+        if (!ship.isMoving) this._board[shipX][shipY].occupiedBy = ship;
+      }
+    }
+
+    // Draw the moving ship (in game setup) after, if there is a ship being
+    // moved by the player
+    if (movingShip) {
+      const valid = movingShip.isValidPosition;
+      for (let i = 0; i < movingShip.length; i++) {
+        const xoff = (movingShip.orientation === ShipOrientation.HORIZONTAL) ? i : 0;
+        const yoff = (movingShip.orientation === ShipOrientation.VERTICAL) ? i : 0;
+        const shipX = movingShip.x! + xoff;
+        const shipY = movingShip.y! + yoff;
+        
+        this._board[shipX][shipY].isFixed = false;
+        this._board[shipX][shipY].isValid = valid;
       }
     }
 
@@ -168,12 +178,17 @@ export class GameBoard {
         if (this._board[i][j].isHit) cell?.classList.add("hit");
 
         if (this._board[i][j].isFixed === false) {
-          cell?.classList.add("not-fixed");
-          if (!this._board[i][j].isValid) cell?.classList.add("invalid");
+          if (!cell?.classList.contains("not-fixed")) cell?.classList.add("not-fixed");
         }
         else {
-          cell?.classList.remove("not-fixed");
-          cell?.classList.remove("invalid");
+          if (cell?.classList.contains("not-fixed")) cell?.classList.remove("not-fixed");
+        }
+
+        if (this._board[i][j].isValid === false) {
+          if (!cell?.classList.contains("invalid")) cell?.classList.add("invalid");
+        }
+        else {
+          if (cell?.classList.contains("invalid")) cell?.classList.remove("invalid");
         }
       }
     }
