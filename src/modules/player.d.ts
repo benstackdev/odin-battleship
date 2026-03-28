@@ -15,6 +15,7 @@ declare class Player {
     allSunk(): boolean;
     initPlayerShips(): void;
     randomizeShipLocations(): void;
+    resetPlayer(): void;
 }
 declare class HumanPlayer extends Player {
     private _shipMoving;

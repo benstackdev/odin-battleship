@@ -124,6 +124,11 @@ class Player {
             }
         }
     }
+    resetPlayer() {
+        this._playerBoard.resetBoard();
+        this.randomizeShipLocations();
+        this._playerBoard.updateBoard(this._playerShips);
+    }
 }
 class HumanPlayer extends Player {
     _shipMoving;
@@ -187,17 +192,6 @@ class HumanPlayer extends Player {
         });
     }
     _updateMovingShipPosition(x, y) {
-        // const oldX = this._shipMoving!.x;
-        // const oldY = this._shipMoving!.y;
-        // this._shipMoving!.x = x;
-        // this._shipMoving!.y = y;
-        // if (!this.playerBoard.isValidShipPosition(this._shipMoving!)) {
-        //   this._shipMoving!.x = oldX;
-        //   this._shipMoving!.y = oldY;
-        // }
-        // this.playerBoard.updateBoard(this.playerShips);
-        // return;
-        // ! Broken code, fix eventually?
         if (this._shipMoving !== undefined) {
             // there currently is a ship being moved
             // still ensure that any x,y is within the bounds of the board

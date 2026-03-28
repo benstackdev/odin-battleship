@@ -14,15 +14,22 @@
   <div class="content">
     <div class="game"></div>
     <div class="options">
+      <div class="win game-end"><span class="game-winner">You Win!</span></div>
+      <button class="new-game game-end">New Game</button>
       <div class="turn game-playing">Current turn: <span class="current-turn"></span></div>
       <div class="options-header game-setup">Options</div>
       <div class="options-buttons game-setup">
         <button class="randomize-board game-setup">Randomize Board</button>
         <button class="start-game game-setup">Start Game</button>
       </div>
-      <div class="setup-instructions game-setup"></div>
-      <div class="win game-end"><span class="game-winner"></span> wins!</div>
-      <button class="new-game game-end">New Game</button>
+      <div class="setup-instructions game-setup">
+        <div class="setup-instructions-title">Game Setup</div>
+        <ul>
+          <li>Left-click on a ship to move it</li>
+          <li>Press SPACE or R to rotate a ship being moved</li>
+          <li>Left-click a moving ship to place it</li>
+        </ul>
+      </div>
     </div>
   </div>
   <footer>

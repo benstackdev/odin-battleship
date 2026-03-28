@@ -13,7 +13,9 @@ export declare class GameBoard {
     isValidShipPosition(ship: Ship, orientation?: ShipOrientation): boolean;
     private _isBufferAroundShip;
     updateBoard(ships: Ship[], movingShip?: Ship | undefined): void;
+    resetBoard(): void;
     initDisplay(): void;
+    resetDisplay(): void;
     updateDisplay(): void;
 }
 //# sourceMappingURL=gameboard.d.ts.map

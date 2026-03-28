@@ -49,9 +49,10 @@ export class Game {
         });
         this.newGameButton.addEventListener("click", () => {
             if (this._gameState === GameState.END) {
+                this._humanPlayer.resetPlayer();
+                this._computerPlayer.resetPlayer();
                 this._gameState = GameState.SETUP;
                 this._updateElementVisibility();
-                // TODO: reset board state on game restart
             }
         });
         this.setupGameInit();
@@ -59,19 +60,20 @@ export class Game {
     _updateElementVisibility() {
         switch (this._gameState) {
             case GameState.SETUP:
-                this.gameSetupElements.forEach(elem => elem.style.visibility = "visible");
-                this.gamePlayingElements.forEach(elem => elem.style.visibility = "hidden");
-                this.gameEndElements.forEach(elem => elem.style.visibility = "hidden");
+                this.gameSetupElements.forEach(elem => elem.style.display = "");
+                this.gamePlayingElements.forEach(elem => elem.style.display = "none");
+                this.gameEndElements.forEach(elem => elem.style.display = "none");
                 break;
             case GameState.PLAYING:
-                this.gamePlayingElements.forEach(elem => elem.style.visibility = "visible");
-                this.gameSetupElements.forEach(elem => elem.style.visibility = "hidden");
-                this.gameEndElements.forEach(elem => elem.style.visibility = "hidden");
+                this.gamePlayingElements.forEach(elem => elem.style.display = "");
+                this.gameSetupElements.forEach(elem => elem.style.display = "none");
+                this.gameEndElements.forEach(elem => elem.style.display = "none");
                 break;
             case GameState.END:
-                this.gameEndElements.forEach(elem => elem.style.visibility = "visible");
-                this.gameSetupElements.forEach(elem => elem.style.visibility = "hidden");
-                this.gamePlayingElements.forEach(elem => elem.style.visibility = "hidden");
+                this.gameEndElements.forEach(elem => elem.style.display = "");
+                this.gameSetupElements.forEach(elem => elem.style.display = "none");
+                this.gamePlayingElements.forEach(elem => elem.style.display = "none");
+                break;
         }
     }
     setupGameInit() {
@@ -96,7 +98,7 @@ export class Game {
                         if (!wasHit)
                             this.toggleTurn();
                         if (this._computerPlayer.allSunk())
-                            this._gameOver("You");
+                            this._gameOver("You win!");
                     }
                 });
             }
@@ -112,7 +114,7 @@ export class Game {
         console.log(`${attackCoordinate[0]}, ${attackCoordinate[1]}: ${wasHit}`);
         while (wasHit) {
             if (this._humanPlayer.allSunk())
-                this._gameOver("Computer");
+                this._gameOver("Computer wins!");
             this._computerPlayer.addToShipHit(attackCoordinate);
             await sleep(this._computerTurnDelay);
             attackCoordinate = this._computerPlayer.findAttack();

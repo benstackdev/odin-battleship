@@ -121,6 +121,18 @@ export class GameBoard {
     this.updateDisplay();
   }
 
+  resetBoard() {
+    for (let i = 0; i < this.BOARD_SIZE; i++) {
+      for (let j = 0; j < this.BOARD_SIZE; j++) {
+        this._board[i][j].occupiedBy = undefined;
+        this._board[i][j].isFixed = true;
+        this._board[i][j].isValid = true;
+        this._board[i][j].isHit = false;
+      }
+    }
+    this.resetDisplay();
+  }
+
   initDisplay() {
     this._gameBoardDiv.className = `game-board`;
     if (this.gameDiv !== null) this.gameDiv.appendChild(this._gameBoardDiv);
@@ -161,6 +173,17 @@ export class GameBoard {
     
     this.gameDiv!.appendChild(gameBoardLabelDiv);
 
+  }
+
+  resetDisplay() {
+    for (let i = 0; i < this.BOARD_SIZE; i++) {
+      for (let j = 0; j < this.BOARD_SIZE; j++) {
+        const cell = document.querySelector(`.x${this._id}-${i}.y${this._id}-${j}`);
+        if (cell?.classList.contains("ship")) cell.classList.remove("ship");
+        if (cell?.classList.contains("computer")) cell.classList.remove("computer");
+        if (cell?.classList.contains("hit")) cell.classList.remove("hit");
+      }
+    }
   }
 
   updateDisplay() {

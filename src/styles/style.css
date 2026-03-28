@@ -7,23 +7,29 @@ TODO: Make ships and hits look better
   font-size: 16px;
 
   --col-bg: #f7f7f7;
-  --col-button: #aaa;
+  --col-button: #ccc;
   --col-button-hover: #bbb;
-  --col-primary: #555;
+  --col-primary: #222;
   --col-ship: #8aa3e7;
-  --col-ship-sunk: #c06262;
+  --col-ship-valid: #98cf98;
+  --col-ship-invalid: #d87575;
+  --col-ship-sunk: #dc7171;
+  --hit-image-url: url("../images/hit_light.svg");
 
   --game-cell-size: 40px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --col-bg: #222;
-    --col-button: #333;
-    --col-button-hover: #444;
-    --col-primary: #ccc;
-    --col-ship: #2323b1;
+    --col-bg: #111;
+    --col-button: #444;
+    --col-button-hover: #555;
+    --col-primary: #d7d7d7;
+    --col-ship: #2fb3aa;
+    --col-ship-valid: #37b737;
+    --col-ship-invalid: #a21d1d;
     --col-ship-sunk: #832828;
+    --hit-image-url: url("../images/hit_dark.svg");
   }
 }
 
@@ -36,11 +42,12 @@ TODO: Make ships and hits look better
 }
 
 body {
+  min-height: 100vh;
+
   background-color: var(--col-bg);
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
 }
 
@@ -52,13 +59,18 @@ header, footer {
   padding: 2rem;
 }
 
+footer {
+  position: fixed;
+  bottom: 0;
+}
+
 button {
   appearance: none;
   border: none;
 }
 
 .header-text {
-  font-size: 2rem;
+  font-size: 4rem;
   font-weight: 600;
 }
 
@@ -113,12 +125,12 @@ button {
 
 /* ship not fixed */
 .game-board-cell.not-fixed {
-  background-color: limegreen;
+  background-color: var(--col-ship-valid);
   z-index: 2;
 }
 
 .game-board-cell.not-fixed.invalid {
-  background-color: maroon;
+  background-color: var(--col-ship-invalid);
   z-index: 2;
 }
 
@@ -128,7 +140,7 @@ button {
   display: inline-block;
   width: var(--game-cell-size);  /* Desired width */
   height: var(--game-cell-size); /* Desired height */
-  background-image: url('../images/hit.svg');
+  background-image: var(--hit-image-url);
   background-size: contain; /* Scales SVG to fit within the width/height */
   background-repeat: no-repeat;
 }
@@ -161,36 +173,6 @@ button {
   transform: translate(-100%, -100%);
 }
 
-.ship-draggable {
-  margin: 1rem;
-
-  width: var(--game-cell-size);
-  height: var(--game-cell-size);
-  background-color: #0000ff50;
-  border: 2px solid blue;
-}
-
-.ship-select {
-  align-self: flex-start;
-  margin-left: 4rem;
-}
-
-.ship-select-container {
-  display: flex;
-}
-
-.ship-draggable[data-length="2"] {
-  width: calc(var(--game-cell-size) * 2);
-}
-
-.ship-draggable[data-length="3"] {
-  width: calc(var(--game-cell-size) * 3);
-}
-
-.ship-draggable[data-length="4"] {
-  width: calc(var(--game-cell-size) * 4);
-}
-
 .options {
   display: flex;
   flex-direction: column;
@@ -200,8 +182,8 @@ button {
   gap: 1rem;
 }
 
-.turn {
-  font-size: 2rem;
+.turn, .game-winner {
+  font-size: 4rem;
   font-weight: 600;
 }
 
@@ -212,10 +194,14 @@ button {
 
 .options-buttons {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 1rem;
 }
 
-.options-buttons button {
+.options button {
+  width: fit-content;
   font-size: 1.25rem;
   
   padding: 0.5rem;
@@ -224,7 +210,31 @@ button {
   border-radius: 0.5rem;
 }
 
-.options-buttons button:hover {
+.options button:hover {
   background-color: var(--col-button-hover);
   border-radius: 0.5rem;
+}
+
+.setup-instructions {
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.setup-instructions-title {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.setup-instructions ul {
+  margin-top: 1rem;
+  font-size: 1.25rem;
+
+  text-align: left;
+
+  appearance: none;
+  list-style: none;
+}
+
+.setup-instructions ul li {
+  margin-bottom: 0.5rem;
 }
